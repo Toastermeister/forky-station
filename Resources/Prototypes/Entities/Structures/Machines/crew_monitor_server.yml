@@ -40,7 +40,7 @@
     - type: DeviceNetwork
       deviceNetId: Wireless
       transmitFrequencyId: CrewMonitor
-      receiveFrequencyId: SuitSensor
+      receiveFrequencyId: PDASensor
       autoConnect: false
     - type: WirelessNetworkConnection
       range: 500

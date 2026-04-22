@@ -16,20 +16,20 @@
 // SPDX-FileCopyrightText: 2025 kosticia <kosticia46@gmail.com>
 // SPDX-License-Identifier: MIT
 
-using Content.Shared.Medical.SuitSensor;
+using Content.Shared.Medical.PDASensor;
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
-namespace Content.Shared.Medical.SuitSensors;
+namespace Content.Shared.Medical.PDASensor;
 
 /// <summary>
-///     Tracking device, embedded in almost all uniforms and jumpsuits.
+///     Tracking device, embedded in almost all PDAs and prisoner jumpsuits.
 ///     If enabled, will report to crew monitoring console owners position and status.
 /// </summary>
 [RegisterComponent, NetworkedComponent]
-[Access(typeof(SharedSuitSensorSystem))]
+[Access(typeof(SharedPDASensorSystem))]
 [AutoGenerateComponentState, AutoGenerateComponentPause]
-public sealed partial class SuitSensorComponent : Component
+public sealed partial class PDASensorComponent : Component
 {
     /// <summary>
     ///     Choose a random sensor mode when item is spawned.
@@ -53,13 +53,13 @@ public sealed partial class SuitSensorComponent : Component
     ///     Current sensor mode. Can be switched by user verbs.
     /// </summary>
     [DataField, AutoNetworkedField]
-    public SuitSensorMode Mode = SuitSensorMode.SensorOff;
+    public PDASensorMode Mode = PDASensorMode.SensorOff;
 
     /// <summary>
     ///     Activate sensor if user wear it in this slot.
     /// </summary>
     [DataField]
-    public string ActivationSlot = "jumpsuit";
+    public string[] ActivationSlots = { "idcard", "belt" };
 
     /// <summary>
     /// Activate sensor if user has this in a sensor-compatible container.
@@ -74,7 +74,7 @@ public sealed partial class SuitSensorComponent : Component
     public TimeSpan UpdateRate = TimeSpan.FromSeconds(2f);
 
     /// <summary>
-    ///     Current user that wears suit sensor. Null if nobody wearing it.
+    ///     Current user that wears PDA sensor. Null if nobody wearing it.
     /// </summary>
     [DataField, AutoNetworkedField]
     public EntityUid? User = null;
@@ -87,24 +87,24 @@ public sealed partial class SuitSensorComponent : Component
     public TimeSpan NextUpdate = TimeSpan.Zero;
 
     /// <summary>
-    ///     The station this suit sensor belongs to. If it's null the suit didn't spawn on a station and the sensor doesn't work.
+    ///     The station this PDA sensor belongs to. If it's null the PDA didn't spawn on a station and the sensor doesn't work.
     /// </summary>
     [DataField("station"), AutoNetworkedField]
     public EntityUid? StationId = null;
 
     /// <summary>
-    ///     The server the suit sensor sends it state to.
-    ///     The suit sensor will try connecting to a new server when no server is connected.
+    ///     The server the PDA sensor sends it state to.
+    ///     The PDA sensor will try connecting to a new server when no server is connected.
     ///     It does this by calling the servers entity system for performance reasons.
     /// </summary>
     [DataField("server")]
     public string? ConnectedServer = null;
 
     /// <summary>
-    /// The previous mode of the suit. This is used to restore the state when an EMP effect ends.
+    /// The previous mode of the PDA. This is used to restore the state when an EMP effect ends.
     /// </summary>
     [DataField, AutoNetworkedField, ViewVariables]
-    public SuitSensorMode PreviousMode = SuitSensorMode.SensorOff;
+    public PDASensorMode PreviousMode = PDASensorMode.SensorOff;
 
     /// <summary>
     ///  The previous locked status of the controls.  This is used to restore the state when an EMP effect ends.

@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2023 metalgearsloth <31366439+metalgearsloth@users.noreply.github.com>
 // SPDX-License-Identifier: MIT
 
-using Content.Shared.Medical.SuitSensor;
+using Content.Shared.Medical.PDASensor;
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.Medical.CrewMonitoring;
@@ -19,9 +19,9 @@ public enum CrewMonitoringUIKey
 [Serializable, NetSerializable]
 public sealed class CrewMonitoringState : BoundUserInterfaceState
 {
-    public List<SuitSensorStatus> Sensors;
+    public List<PDASensorStatus> Sensors;
 
-    public CrewMonitoringState(List<SuitSensorStatus> sensors)
+    public CrewMonitoringState(List<PDASensorStatus> sensors)
     {
         Sensors = sensors;
     }

@@ -64,10 +64,9 @@
   parent: UnsensoredClothingUniformBase
   id: ClothingUniformBase
   components:
-  - type: SuitSensor
   - type: DeviceNetwork
     deviceNetId: Wireless
-    transmitFrequencyId: SuitSensor
+    transmitFrequencyId: PDASensor
     savableAddress: false
   - type: WirelessNetworkConnection
     range: 1200

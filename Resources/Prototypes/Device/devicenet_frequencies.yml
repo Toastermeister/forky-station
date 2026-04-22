@@ -75,11 +75,11 @@
 
 # Only listen to this frequency if you are a crew monitor server. Otherwise you will just slow down the server by constantly receiving periodic broadcasts from every player-entity.
 - type: deviceFrequency
-  id: SuitSensor
-  name: device-frequency-prototype-name-suit-sensors
+  id: PDASensor
+  name: device-frequency-prototype-name-PDA-sensors
   frequency: 1262
 
-# Crew monitors listen to this for a list of suit sensor statuses
+# Crew monitors listen to this for a list of PDA sensor statuses
 - type: deviceFrequency
   id: CrewMonitor
   name: device-frequency-prototype-name-crew-monitor
@@ -108,7 +108,7 @@
   id: Turret
   name: device-frequency-prototype-name-turret
   frequency: 2152
-  
+
 # AI turret controllers send data to their turrets on this frequency
 - type: deviceFrequency
   id: TurretControlAI

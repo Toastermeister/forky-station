@@ -18,7 +18,7 @@ using Content.Shared.PowerCell;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DeviceNetwork.Events;
 using Content.Shared.Medical.CrewMonitoring;
-using Content.Shared.Medical.SuitSensor;
+using Content.Shared.Medical.PDASensor;
 using Content.Shared.Pinpointer;
 using Robust.Server.GameObjects;
 
@@ -53,7 +53,7 @@ public sealed class CrewMonitoringConsoleSystem : EntitySystem
         if (command != DeviceNetworkConstants.CmdUpdatedState)
             return;
 
-        if (!payload.TryGetValue(SuitSensorConstants.NET_STATUS_COLLECTION, out Dictionary<string, SuitSensorStatus>? sensorStatus))
+        if (!payload.TryGetValue(PDASensorConstants.NET_STATUS_COLLECTION, out Dictionary<string, PDASensorStatus>? sensorStatus))
             return;
 
         component.ConnectedSensors = sensorStatus;

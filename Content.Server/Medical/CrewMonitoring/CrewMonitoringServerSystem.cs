@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: MIT
 
 using Content.Server.DeviceNetwork.Systems;
-using Content.Server.Medical.SuitSensors;
+using Content.Server.Medical.PDASensors;
 using Content.Shared.DeviceNetwork;
 using Content.Shared.DeviceNetwork.Events;
-using Content.Shared.Medical.SuitSensor;
+using Content.Shared.Medical.PDASensor;
 using Robust.Shared.Timing;
 using Content.Shared.DeviceNetwork.Components;
 
@@ -15,7 +15,7 @@ namespace Content.Server.Medical.CrewMonitoring;
 
 public sealed class CrewMonitoringServerSystem : EntitySystem
 {
-    [Dependency] private readonly SuitSensorSystem _sensors = default!;
+    [Dependency] private readonly PdaSensorSystem _sensors = default!;
     [Dependency] private readonly IGameTiming _gameTiming = default!;
     [Dependency] private readonly DeviceNetworkSystem _deviceNetworkSystem = default!;
     [Dependency] private readonly SingletonDeviceNetServerSystem _singletonServerSystem = default!;
@@ -58,7 +58,7 @@ public sealed class CrewMonitoringServerSystem : EntitySystem
     /// </summary>
     private void OnPacketReceived(EntityUid uid, CrewMonitoringServerComponent component, DeviceNetworkPacketEvent args)
     {
-        var sensorStatus = _sensors.PacketToSuitSensor(args.Data);
+        var sensorStatus = _sensors.PacketToPDASensor(args.Data);
         if (sensorStatus == null)
             return;
 
@@ -101,7 +101,7 @@ public sealed class CrewMonitoringServerSystem : EntitySystem
         var payload = new NetworkPayload()
         {
             [DeviceNetworkConstants.Command] = DeviceNetworkConstants.CmdUpdatedState,
-            [SuitSensorConstants.NET_STATUS_COLLECTION] = serverComponent.SensorStatus
+            [PDASensorConstants.NET_STATUS_COLLECTION] = serverComponent.SensorStatus
         };
 
         _deviceNetworkSystem.QueuePacket(uid, null, payload, device: device);

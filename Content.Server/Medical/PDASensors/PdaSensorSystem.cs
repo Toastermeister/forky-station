@@ -31,12 +31,12 @@
 using Content.Server.DeviceNetwork.Systems;
 using Content.Server.Medical.CrewMonitoring;
 using Content.Shared.DeviceNetwork.Components;
-using Content.Shared.Medical.SuitSensors;
+using Content.Shared.Medical.PDASensor;
 using Robust.Shared.Timing;
 
-namespace Content.Server.Medical.SuitSensors;
+namespace Content.Server.Medical.PDASensors;
 
-public sealed class SuitSensorSystem : SharedSuitSensorSystem
+public sealed class PdaSensorSystem : SharedPDASensorSystem
 {
     [Dependency] private readonly IGameTiming _gameTiming = default!;
     [Dependency] private readonly DeviceNetworkSystem _deviceNetworkSystem = default!;
@@ -47,7 +47,7 @@ public sealed class SuitSensorSystem : SharedSuitSensorSystem
         base.Update(frameTime);
 
         var curTime = _gameTiming.CurTime;
-        var sensors = EntityQueryEnumerator<SuitSensorComponent, DeviceNetworkComponent>();
+        var sensors = EntityQueryEnumerator<PDASensorComponent, DeviceNetworkComponent>();
 
         while (sensors.MoveNext(out var uid, out var sensor, out var device))
         {
@@ -77,7 +77,7 @@ public sealed class SuitSensorSystem : SharedSuitSensorSystem
             }
 
             // Send it to the connected server
-            var payload = SuitSensorToPacket(status);
+            var payload = PDASensorToPacket(status);
 
             // Clear the connected server if its address isn't on the network
             if (!_deviceNetworkSystem.IsAddressPresent(device.DeviceNetId, sensor.ConnectedServer))

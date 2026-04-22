@@ -8,7 +8,7 @@
 // SPDX-FileCopyrightText: 2023 DrSmugleaf <DrSmugleaf@users.noreply.github.com>
 // SPDX-License-Identifier: MIT
 
-using Content.Shared.Medical.SuitSensor;
+using Content.Shared.Medical.PDASensor;
 
 namespace Content.Server.Medical.CrewMonitoring;
 
@@ -19,7 +19,7 @@ public sealed partial class CrewMonitoringConsoleComponent : Component
     /// <summary>
     ///     List of all currently connected sensors to this console.
     /// </summary>
-    public Dictionary<string, SuitSensorStatus> ConnectedSensors = new();
+    public Dictionary<string, PDASensorStatus> ConnectedSensors = new();
 
     /// <summary>
     ///     After what time sensor consider to be lost.

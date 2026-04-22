@@ -180,6 +180,7 @@
       whitelist:
         components:
           - Cartridge
+  - type: PDASensor
   - type: ActivatableUI
     key: enum.PdaUiKey.Key
     singleUser: true

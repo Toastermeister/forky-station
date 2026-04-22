@@ -17,15 +17,15 @@ using Content.Shared.DoAfter;
 using Robust.Shared.Map;
 using Robust.Shared.Serialization;
 
-namespace Content.Shared.Medical.SuitSensor;
+namespace Content.Shared.Medical.PDASensor;
 
 [Serializable, NetSerializable]
-public sealed class SuitSensorStatus
+public sealed class PDASensorStatus
 {
-    public SuitSensorStatus(NetEntity ownerUid, NetEntity suitSensorUid, string name, string job, string jobIcon, List<string> jobDepartments)
+    public PDASensorStatus(NetEntity ownerUid, NetEntity pdaSensorUid, string name, string job, string jobIcon, List<string> jobDepartments)
     {
         OwnerUid = ownerUid;
-        SuitSensorUid = suitSensorUid;
+        PDASensorUid = pdaSensorUid;
         Name = name;
         Job = job;
         JobIcon = jobIcon;
@@ -33,7 +33,7 @@ public sealed class SuitSensorStatus
     }
 
     public TimeSpan Timestamp;
-    public NetEntity SuitSensorUid;
+    public NetEntity PDASensorUid;
     public NetEntity OwnerUid;
     public string Name;
     public string Job;
@@ -47,7 +47,7 @@ public sealed class SuitSensorStatus
 }
 
 [Serializable, NetSerializable]
-public enum SuitSensorMode : byte
+public enum PDASensorMode : byte
 {
     /// <summary>
     /// Sensor doesn't send any information about owner
@@ -70,7 +70,7 @@ public enum SuitSensorMode : byte
     SensorCords = 3
 }
 
-public static class SuitSensorConstants
+public static class PDASensorConstants
 {
     public const string NET_OWNER_UID = "ownerUid";
     public const string NET_NAME = "name";
@@ -81,18 +81,18 @@ public static class SuitSensorConstants
     public const string NET_TOTAL_DAMAGE = "vitals";
     public const string NET_TOTAL_DAMAGE_THRESHOLD = "vitalsThreshold";
     public const string NET_COORDINATES = "coords";
-    public const string NET_SUIT_SENSOR_UID = "uid";
+    public const string NET_PDA_SENSOR_UID = "uid";
 
     ///Used by the CrewMonitoringServerSystem to send the status of all connected suit sensors to each crew monitor
     public const string NET_STATUS_COLLECTION = "suit-status-collection";
 }
 
 [Serializable, NetSerializable]
-public sealed partial class SuitSensorChangeDoAfterEvent : DoAfterEvent
+public sealed partial class PDASensorChangeDoAfterEvent : DoAfterEvent
 {
-    public SuitSensorMode Mode { get; private set; } = SuitSensorMode.SensorOff;
+    public PDASensorMode Mode { get; private set; } = PDASensorMode.SensorOff;
 
-    public SuitSensorChangeDoAfterEvent(SuitSensorMode mode)
+    public PDASensorChangeDoAfterEvent(PDASensorMode mode)
     {
         Mode = mode;
     }
