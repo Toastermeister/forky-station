@@ -1,73 +1,42 @@
 ﻿<Document>
-  # Large Bomb Defusal
-  So, you found a large bomb and it's beeping. These bombs take a long time to detonate and punch a big hole into the hull. Just keep reading, and nobody will explode.
+  # Modular Bomb Defusal
+  So, you found a modular explosive device and it's ticking. These devices cannot be defused by simply cutting random wires anymore. They use a randomized puzzle module system. Just keep talking, and nobody will explode.
+
+  ## Cooperative Defusal
+  Defusing a modular bomb requires **two players** working together:
+  1. **The Defuser**: The player who interacts with the bomb. They can see the modules, strike indicators, and serial number, and perform actions.
+  2. **The Manual Reader**: Another player who reads the [color=yellow]Bomb Defusal Manual[/color] (found in the **Head of Security's locker**). They must give the Defuser the correct instructions.
+
+  The Defuser cannot see the rules, and the Manual Reader cannot see the bomb. Communication is key!
 
   ## Gear
-  You require two essential tools to perform defusal, however, a multitool is extremely helpful in terms of identifying wires.
-  <Box>
-    <GuideEntityEmbed Entity="Wirecutter"/>
-    <GuideEntityEmbed Entity="Screwdriver"/>
-    <GuideEntityEmbed Entity="Multitool"/>
-  </Box>
-
-  For protective equipment, a [color=yellow]bomb suit[/color] or any other protective equipment can assist you in not blowing into gibs.
+  No special tools (like wirecutters or screwdrivers) are required to open the interface, but a [color=yellow]bomb suit[/color] is highly recommended for safety.
   <Box>
     <GuideEntityEmbed Entity="ClothingHeadHelmetBombSuit"/>
     <GuideEntityEmbed Entity="ClothingOuterSuitBomb"/>
-    <GuideEntityEmbed Entity="ClothingOuterHardsuitRd"/>
-    <GuideEntityEmbed Entity="ClothingOuterHardsuitAtmos"/>
   </Box>
 
   ## Hardbombs
-  Listed below are the two common types of bombs you will encounter while defusing. A training bomb will only provide minor hull damage and generally not kill you. A syndicate bomb however will punch a big hole into the hull, and gib you if you are not wearing protective gear.
+  You will typically encounter the Syndicate Bomb and the Training Bomb:
   <Box>
     <GuideEntityEmbed Entity="SyndicateBomb"/>
     <GuideEntityEmbed Entity="TrainingBomb"/>
   </Box>
 
-  ## Arming
-  To arm a bomb, you can either [color=yellow]right click[/color] and click [color=yellow]Begin countdown[/click], or [color=yellow]alt-click[/color] the bomb. It will begin beeping.
+  ## The Strike System
+  Modular bombs have a strike system:
+  - **3 Strikes** (5 for Training Bombs) will cause **immediate detonation**!
+  - **Failing a module** (e.g. cutting the wrong wire, pressing buttons out of order) adds 1 strike.
+  - **Closing the defusal interface** while the bomb is active also counts as a strike. Do not step away once you start!
 
-  ## Time
-  A bomb has a limited time, at a minimum of [protodata="SyndicateBomb" comp="TimerTrigger" member="ShortestDelayOption"/] seconds and a maximum of [protodata="SyndicateBomb" comp="TimerTrigger" member="LongestDelayOption"/] seconds. You can view the timer by examining it, unless the Proceed wire is cut. Once the timer hits zero, the bomb will detonate.
+  ## Module Count and Time
+  The number of modules is determined by the timer set on the bomb when armed: **1 module per minute** of time (e.g., 3 minutes = 3 modules, 8 minutes = 8 modules). All modules must be solved before the timer hits zero.
 
-  ## Bolts
-  By default, once armed, a bomb will bolt itself to the ground. You must find the BOLT wire and cut it to disable the bolts, after which you can unwrench it and throw it into space.
-
-  ## Wires
-  You must access the wiring in order to defuse a bomb. You can use a [color=yellow]screwdriver[/color] to open the access panel. Inside, you will find many types of wires. In a standard syndicate bomb, there are around [color=yellow]10 wires[/color], 3 are dummy wires, [color=red]3 will cause a detonation[/color], and the rest that weren't mentioned can be found below (alongside BOOM wires). With each wire, you can do 3 actions. You can:
-  - [color=yellow]Pulse the wire[/color] with a multitool, this can help you safely identify most wires.
-  - [color=red]Cut the wire[/color] with a wirecutter, this can trigger various effects, be cautious of cutting without reason!
-  - [color=green]Mend the wire[/color] with a wirecutter, this can restore some functionality of the bomb if it isn't disposable.
-
-  Onward for the types of wires.
-
-  ## Wire Types
-  [color=#a4885c]Activation Wire (LIVE)[/color]
-  - [color=yellow]Pulse the wire[/color]: Pulsing the wire will make the wire chirp and delay the bomb by 30 seconds.
-  - [color=red]Cut the wire[/color]: Cutting the wire will defuse the bomb if active, otherwise, will begin the timer.
-  - [color=green]Mend the wire[/color]: Nothing.
-
-  [color=#a4885c]Proceed Wire (PRCD)[/color]
-  - [color=yellow]Pulse the wire[/color]: Pulsing the wire will forward the time by 15 seconds.
-  - [color=red]Cut the wire[/color]: Cutting the wire will disable the timer display on examine.
-  - [color=green]Mend the wire[/color]: Nothing.
-
-  [color=#a4885c]Delay Wire (DLAY)[/color]
-  - [color=yellow]Pulse the wire[/color]: Pulsing the delay wire will delay the bomb by 30 seconds.
-  - [color=red]Cut the wire[/color]: Nothing.
-  - [color=green]Mend the wire[/color]: Nothing.
-
-  [color=#a4885c]Boom Wire (BOOM)[/color]
-  - [color=yellow]Pulse the wire[/color]: [color=red]The bomb will explode if armed![/color]
-  - [color=red]Cut the wire[/color]: [color=red]The bomb will explode if armed![/color] Otherwise, will disable the bomb.
-  - [color=green]Mend the wire[/color]: Re-enables the bomb if disabled previously.
-
-  [color=#a4885c]Bolt Wire (BOLT)[/color]
-  - [color=yellow]Pulse the wire[/color]: Pulsing the wire will make the bolts spin.
-  - [color=red]Cut the wire[/color]: Cutting the wire will disable the bolts, throw it into space!
-  - [color=green]Mend the wire[/color]: Mending the wire will re-enable the bolts.
-
-  [color=#a4885c]Dummy Wire[/color]
-  - Dummy wires don't do anything. You can pulse, cut, and mend them freely without affecting the bomb at all.
+  ## Puzzle Modules
+  You will encounter 5 types of modules:
+  - [color=yellow]Wires[/color]: A vertical set of 3-6 colored wires. Only one correct wire must be cut based on the rules in the manual (referencing wire count and the bomb's serial number).
+  - [color=yellow]Symbols[/color]: 4 buttons displaying mysterious glyphs. They must be pressed in the order they appear in the correct manual column.
+  - [color=yellow]The Button[/color]: A single colored button with a word. You must either tap it quickly or hold it down. If held, a colored strip appears, and you must release the button when the timer contains a specific digit.
+  - [color=yellow]Simon Says[/color]: A sequence of flashing colors. You must repeat the sequence using the color translation table in the manual, which changes depending on the serial number and current strikes.
+  - [color=yellow]Codewords[/color]: A list of 6 words. Find the category column in the manual that matches the displayed words to identify the single correct codeword.
 </Document>

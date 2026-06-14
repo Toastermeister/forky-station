@@ -317,6 +317,7 @@
     children:
     - id: WeaponEnergyMagnum
     - id: BookSpaceLaw
+    - id: BombDefusalManual
     - id: BoxEncryptionKeySecurity
     - id: CigarGoldCase
       prob: 0.50
