@@ -13,8 +13,6 @@
           type: BombDefusalBoundUserInterface
     - type: BombDefusal
       maxStrikes: 3
-    - type: ActivatableUI
-      key: enum.BombDefusalUiKey.Key
     - type: Rotatable
     - type: Explosive
       explosionType: Default
@@ -44,10 +42,6 @@
             - MachineMask
           layer:
             - MachineLayer
-    - type: GuideHelp
-      openOnActivation: true
-      guides:
-      - Defusal
 
 - type: entity
   parent: BaseHardBomb

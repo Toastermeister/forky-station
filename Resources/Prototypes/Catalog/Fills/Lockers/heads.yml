@@ -317,7 +317,8 @@
     children:
     - id: WeaponEnergyMagnum
     - id: BookSpaceLaw
-    - id: BombDefusalManual
+    - id: BombScanner
+    - id: BombDefusalKit
     - id: BoxEncryptionKeySecurity
     - id: CigarGoldCase
       prob: 0.50
