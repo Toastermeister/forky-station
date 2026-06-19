@@ -8,7 +8,7 @@ public abstract partial class BaseStylesheet
 {
     [Dependency] protected readonly IConfigurationManager Cfg = default!;
 
-    public bool FunkyAmberEnabled => Cfg.GetCVar(CCVars.FunkyAmberEnabled);
+    public bool FunkyAmberEnabled => Cfg.IsCVarRegistered(CCVars.FunkyAmberEnabled.Name) && Cfg.GetCVar(CCVars.FunkyAmberEnabled);
 
     /// <summary>
     ///     The type used to describe a configuration for this stylesheet.

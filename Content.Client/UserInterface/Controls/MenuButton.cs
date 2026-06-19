@@ -21,9 +21,10 @@ public sealed class MenuButton : ContainerButton
     public const string StyleClassLabelTopButton = "topButtonLabel";
     // public const string StyleClassRedTopButton = "topButtonLabel";
 
-    private Color ColorNormal => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff6a00") : Color.FromHex("#99a7b3");
-    private Color ColorHovered => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff9a3d") : Color.FromHex("#acbac6");
-    private Color ColorPressed => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#994400") : Color.FromHex("#75838e");
+    private bool IsFunkyAmberEnabled => _cfg.IsCVarRegistered(CCVars.FunkyAmberEnabled.Name) && _cfg.GetCVar(CCVars.FunkyAmberEnabled);
+    private Color ColorNormal => IsFunkyAmberEnabled ? Color.FromHex("#ff6a00") : Color.FromHex("#99a7b3");
+    private Color ColorHovered => IsFunkyAmberEnabled ? Color.FromHex("#ff9a3d") : Color.FromHex("#acbac6");
+    private Color ColorPressed => IsFunkyAmberEnabled ? Color.FromHex("#994400") : Color.FromHex("#75838e");
 
     private const float VertPad = 4f;
 

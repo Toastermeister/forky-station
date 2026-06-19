@@ -15,9 +15,14 @@ public sealed class ChannelFilterButton : ChatPopupButton<ChannelFilterPopup>
     private static readonly Color DefaultColorHovered = Color.FromHex("#9699bb");
     private static readonly Color DefaultColorPressed = Color.FromHex("#789B8C");
 
-    private Color ColorNormal => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff6a00") : DefaultColorNormal;
-    private Color ColorHovered => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff9a3d") : DefaultColorHovered;
-    private Color ColorPressed => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#994400") : DefaultColorPressed;
+    private static bool IsFunkyAmberEnabled()
+    {
+        var cfg = IoCManager.Resolve<IConfigurationManager>();
+        return cfg.IsCVarRegistered(CCVars.FunkyAmberEnabled.Name) && cfg.GetCVar(CCVars.FunkyAmberEnabled);
+    }
+    private Color ColorNormal => IsFunkyAmberEnabled() ? Color.FromHex("#ff6a00") : DefaultColorNormal;
+    private Color ColorHovered => IsFunkyAmberEnabled() ? Color.FromHex("#ff9a3d") : DefaultColorHovered;
+    private Color ColorPressed => IsFunkyAmberEnabled() ? Color.FromHex("#994400") : DefaultColorPressed;
     private readonly TextureRect? _textureRect;
     private readonly ChatUIController _chatUIController;
 

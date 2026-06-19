@@ -400,7 +400,8 @@ public sealed class ListContainerButton : ContainerButton, IEntityControl
         AddStyleClass(StyleClassButton);
         Data = data;
         Index = index;
-        if (!IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled))
+        var cfg = IoCManager.Resolve<IConfigurationManager>();
+        if (!cfg.IsCVarRegistered(CCVars.FunkyAmberEnabled.Name) || !cfg.GetCVar(CCVars.FunkyAmberEnabled))
         {
             StyleBoxOverride = new StyleBoxFlat(Color.White);
         }
