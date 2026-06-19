@@ -221,6 +221,8 @@ public sealed partial class GunSystem : SharedGunSystem
     {
         userImpulse = true;
 
+        UpdateRecoil(gun, Timing.CurTime);
+
         // Rather than splitting client / server for every ammo provider it's easier
         // to just delete the spawned entities. This is for programmer sanity despite the wasted perf.
         // This also means any ammo specific stuff can be grabbed as necessary.

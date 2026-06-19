@@ -92,14 +92,16 @@ public sealed class MovementAccuracyReticleOverlay : Overlay
         var distancePixels = (center - playerScreenPos).Length();
         var distanceRef = MathF.Max(distancePixels, 100f);
 
-        var timeSinceLastFire = (_timing.CurTime - gun.NextFire).TotalSeconds;
+        var timeSinceLastFire = Math.Max(0f, (float)(_timing.CurTime - gun.LastFire).TotalSeconds);
         var currentAngle = new Angle(MathHelper.Clamp(
             gun.CurrentAngle.Theta - gun.AngleDecayModified.Theta * timeSinceLastFire,
             gun.MinAngleModified.Theta,
             gun.MaxAngleModified.Theta
         ));
 
-        var spreadRadius = distanceRef * MathF.Tan((float)currentAngle.Theta);
+        var ammoSpread = _guns.GetNextAmmoSpread(handEntity.Value);
+        var totalHalfAngle = (currentAngle.Theta / 2f) + (ammoSpread.Theta / 2f);
+        var spreadRadius = distanceRef * MathF.Tan((float)totalHalfAngle);
         var baseRadius = 8f;
         var totalRadius = baseRadius + spreadRadius;
 

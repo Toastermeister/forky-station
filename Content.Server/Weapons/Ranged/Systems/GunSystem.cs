@@ -232,18 +232,15 @@ public sealed partial class GunSystem : SharedGunSystem
         return angles;
     }
 
-    private Angle GetRecoilAngle(TimeSpan curTime, GunComponent component, Angle direction)
+    private Angle GetRecoilAngle(TimeSpan curTime, Entity<GunComponent> gun, Angle direction)
     {
-        var timeSinceLastFire = (curTime - component.LastFire).TotalSeconds;
-        var newTheta = MathHelper.Clamp(component.CurrentAngle.Theta + component.AngleIncreaseModified.Theta - component.AngleDecayModified.Theta * timeSinceLastFire, component.MinAngleModified.Theta, component.MaxAngleModified.Theta);
-        component.CurrentAngle = new Angle(newTheta);
-        component.LastFire = component.NextFire;
+        UpdateRecoil(gun, curTime);
 
         // Convert it so angle can go either side.
         var random = Random.NextFloat(-0.5f, 0.5f);
-        var spread = component.CurrentAngle.Theta * random;
-        var angle = new Angle(direction.Theta + component.CurrentAngle.Theta * random);
-        DebugTools.Assert(spread <= component.MaxAngleModified.Theta);
+        var spread = gun.Comp.CurrentAngle.Theta * random;
+        var angle = new Angle(direction.Theta + gun.Comp.CurrentAngle.Theta * random);
+        DebugTools.Assert(spread <= gun.Comp.MaxAngleModified.Theta);
         return angle;
     }
 

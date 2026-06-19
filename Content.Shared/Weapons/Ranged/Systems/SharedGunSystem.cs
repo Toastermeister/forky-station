@@ -669,6 +669,110 @@ public abstract partial class SharedGunSystem : EntitySystem
         return ammoEv.Capacity;
     }
 
+    public void UpdateRecoil(Entity<GunComponent> gun, TimeSpan curTime)
+    {
+        var timeSinceLastFire = (curTime - gun.Comp.LastFire).TotalSeconds;
+        var newTheta = MathHelper.Clamp(gun.Comp.CurrentAngle.Theta + gun.Comp.AngleIncreaseModified.Theta - gun.Comp.AngleDecayModified.Theta * timeSinceLastFire, gun.Comp.MinAngleModified.Theta, gun.Comp.MaxAngleModified.Theta);
+        gun.Comp.CurrentAngle = new Angle(newTheta);
+        gun.Comp.LastFire = gun.Comp.NextFire;
+        DirtyField(gun.AsNullable(), nameof(GunComponent.CurrentAngle));
+        DirtyField(gun.AsNullable(), nameof(GunComponent.LastFire));
+    }
+
+    public Angle GetNextAmmoSpread(EntityUid gunUid)
+    {
+        var projProto = GetNextProjectilePrototype(gunUid);
+        if (projProto != null && ProtoManager.TryIndex<EntityPrototype>(projProto, out var proto))
+        {
+            if (proto.TryGetComponent<ProjectileSpreadComponent>(out var spreadComp, Factory))
+            {
+                var ev = new GunGetAmmoSpreadEvent(spreadComp.Spread);
+                RaiseLocalEvent(gunUid, ref ev);
+                return ev.Spread;
+            }
+        }
+        return Angle.Zero;
+    }
+
+    public string? GetNextProjectilePrototype(EntityUid gunUid)
+    {
+        if (TryComp<ChamberMagazineAmmoProviderComponent>(gunUid, out var chamber))
+        {
+            var chambered = GetChamberEntity(gunUid);
+            if (chambered != null)
+            {
+                return GetProjectileProtoFromAmmo(chambered.Value);
+            }
+            else
+            {
+                var mag = GetMagazineEntity(gunUid);
+                if (mag != null)
+                {
+                    if (TryComp<BallisticAmmoProviderComponent>(mag.Value, out var magProvider))
+                    {
+                        if (magProvider.Entities.Count > 0)
+                        {
+                            return GetProjectileProtoFromAmmo(magProvider.Entities[^1]);
+                        }
+                        else if (magProvider.UnspawnedCount > 0 && magProvider.Proto != null)
+                        {
+                            return GetProjectileProtoFromCartridgeProto(magProvider.Proto);
+                        }
+                    }
+                }
+            }
+        }
+        else if (TryComp<BallisticAmmoProviderComponent>(gunUid, out var ballistic))
+        {
+            if (ballistic.Entities.Count > 0)
+            {
+                return GetProjectileProtoFromAmmo(ballistic.Entities[^1]);
+            }
+            else if (ballistic.UnspawnedCount > 0 && ballistic.Proto != null)
+            {
+                return GetProjectileProtoFromCartridgeProto(ballistic.Proto);
+            }
+        }
+        else if (TryComp<BatteryAmmoProviderComponent>(gunUid, out var battery))
+        {
+            if (battery.Shots > 0)
+            {
+                return battery.Prototype;
+            }
+        }
+        else if (TryComp<BasicEntityAmmoProviderComponent>(gunUid, out var basic))
+        {
+            return basic.Proto;
+        }
+
+        return null;
+    }
+
+    private string? GetProjectileProtoFromAmmo(EntityUid ammoUid)
+    {
+        if (TryComp<CartridgeAmmoComponent>(ammoUid, out var cartridge))
+        {
+            return cartridge.Prototype;
+        }
+        else if (TryComp<AmmoComponent>(ammoUid, out var ammo))
+        {
+            return Prototype(ammoUid)?.ID;
+        }
+        return null;
+    }
+
+    private string? GetProjectileProtoFromCartridgeProto(string cartridgeProto)
+    {
+        if (ProtoManager.TryIndex<EntityPrototype>(cartridgeProto, out var proto))
+        {
+            if (proto.TryGetComponent<CartridgeAmmoComponent>(out var cartridge, Factory))
+            {
+                return cartridge.Prototype;
+            }
+        }
+        return null;
+    }
+
     public override void Update(float frameTime)
     {
         UpdateBattery(frameTime);
