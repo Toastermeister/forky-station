@@ -1,7 +1,15 @@
+using Content.Shared.CCVar;
+using Robust.Shared.Configuration;
+using Robust.Shared.IoC;
+
 namespace Content.Client.Stylesheets;
 
 public abstract partial class BaseStylesheet
 {
+    [Dependency] protected readonly IConfigurationManager Cfg = default!;
+
+    public bool FunkyAmberEnabled => Cfg.GetCVar(CCVars.FunkyAmberEnabled);
+
     /// <summary>
     ///     The type used to describe a configuration for this stylesheet.
     ///     This will be constructed and passed into the constructor, and may be used for other things as well.

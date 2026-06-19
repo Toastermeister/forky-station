@@ -67,8 +67,8 @@
     _itemstatus_content_margin_left: "#04060604"
     _itemstatus_patch_margin: "#07060404"
 - type: uiTheme
-  id: SS14RetroTheme
-  path: /Textures/Interface/Retro/
+  id: SS14FunkyAmberTheme
+  path: /Textures/Interface/FunkyAmber/
   colors:
     whiteText: "#FFF5EE"
     slotSelectedGold: "#FFF5EE"

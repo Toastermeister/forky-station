@@ -70,4 +70,15 @@ public static class StyleClass
     public const string TooltipPanel = "TooltipPanel";
     public const string TooltipTitle = "TooltipTitle";
     public const string TooltipDesc = "TooltipDesc";
+
+    public const string FunkyAmberRoot = "FunkyAmberRoot";
+    public const string FunkyAmberPanel = "FunkyAmberPanel";
+    public const string FunkyAmberScreen = "FunkyAmberScreen";
+    public const string FunkyAmberText = "FunkyAmberText";
+    public const string FunkyAmberHeading = "FunkyAmberHeading";
+    public const string FunkyAmberSubHeading = "FunkyAmberSubHeading";
+    public const string FunkyAmberStatus = "FunkyAmberStatus";
+    public const string FunkyAmberButton = "FunkyAmberButton";
+    public const string FunkyAmberDangerButton = "FunkyAmberDangerButton";
+    public const string FunkyAmberDivider = "FunkyAmberDivider";
 }

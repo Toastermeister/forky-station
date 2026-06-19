@@ -1,10 +1,14 @@
 using System.Linq;
 using System.Numerics;
+using Content.Client.Stylesheets;
+using Content.Shared.CCVar;
 using JetBrains.Annotations;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.Configuration;
 using Robust.Shared.Input;
+using Robust.Shared.IoC;
 using Robust.Shared.Map;
 
 namespace Content.Client.UserInterface.Controls;
@@ -396,7 +400,10 @@ public sealed class ListContainerButton : ContainerButton, IEntityControl
         AddStyleClass(StyleClassButton);
         Data = data;
         Index = index;
-        StyleBoxOverride = new StyleBoxFlat(Color.White);
+        if (!IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled))
+        {
+            StyleBoxOverride = new StyleBoxFlat(Color.White);
+        }
         // AddChild(Background = new PanelContainer
         // {
         //     HorizontalExpand = true,

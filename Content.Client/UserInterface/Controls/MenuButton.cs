@@ -7,18 +7,23 @@ using Robust.Shared.Graphics;
 using Robust.Shared.Input;
 using Robust.Shared.Utility;
 
+using Content.Shared.CCVar;
+using Robust.Shared.Configuration;
+using Robust.Shared.IoC;
+
 namespace Content.Client.UserInterface.Controls;
 
 public sealed class MenuButton : ContainerButton
 {
     [Dependency] private readonly IInputManager _inputManager = default!;
+    [Dependency] private readonly IConfigurationManager _cfg = default!;
+
     public const string StyleClassLabelTopButton = "topButtonLabel";
     // public const string StyleClassRedTopButton = "topButtonLabel";
 
-    // TODO: KIIIIIILLLLLLLLLLLLLLLLLLLLLLLLLLL --kaylie.
-    private static readonly Color ColorNormal = Color.FromHex("#99a7b3"); // primary color[0] + 0.24 L
-    private static readonly Color ColorHovered = Color.FromHex("#acbac6"); // primary color[0] + 0.30 L
-    private static readonly Color ColorPressed = Color.FromHex("#75838e"); // primary color[0] + 0.12 L
+    private Color ColorNormal => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff6a00") : Color.FromHex("#99a7b3");
+    private Color ColorHovered => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff9a3d") : Color.FromHex("#acbac6");
+    private Color ColorPressed => _cfg.GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#994400") : Color.FromHex("#75838e");
 
     private const float VertPad = 4f;
 

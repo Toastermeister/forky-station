@@ -2,8 +2,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Content.Client.Stylesheets.Stylesheets;
+using Content.Shared.CCVar;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
+using Robust.Shared.Configuration;
 using Robust.Shared.Reflection;
 
 namespace Content.Client.Stylesheets
@@ -13,6 +15,9 @@ namespace Content.Client.Stylesheets
         [Dependency] private readonly ILogManager _logManager = default!;
         [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
         [Dependency] private readonly IReflectionManager _reflection = default!;
+        [Dependency] private readonly IConfigurationManager _cfg = default!;
+
+        public bool FunkyAmberEnabled => _cfg.GetCVar(CCVars.FunkyAmberEnabled);
 
         [Dependency]
         private readonly IResourceCache
@@ -42,17 +47,8 @@ namespace Content.Client.Stylesheets
             sawmill.Debug("Initializing Stylesheets...");
             var sw = Stopwatch.StartNew();
 
-            // add all sheetlets to the hashset
-            var tys = _reflection.FindTypesWithAttribute<CommonSheetletAttribute>();
-            UnusedSheetlets = [..tys];
-
-            Stylesheets = new Dictionary<string, Stylesheet>();
-            SheetNanotrasen = Init(new NanotrasenStylesheet(new BaseStylesheet.NoConfig(), this));
-            SheetSystem = Init(new SystemStylesheet(new BaseStylesheet.NoConfig(), this));
-            SheetNano = new StyleNano(_resCache).Stylesheet; // TODO: REMOVE (obsolete)
-            SheetSpace = new StyleSpace(_resCache).Stylesheet; // TODO: REMOVE (obsolete)
-
-            _userInterfaceManager.Stylesheet = SheetNanotrasen;
+            // Register CVar listener which will trigger the initial load immediately
+            _cfg.OnValueChanged(CCVars.FunkyAmberEnabled, OnFunkyAmberThemeChanged, true);
 
             // warn about unused sheetlets
             if (UnusedSheetlets.Count > 0)
@@ -65,6 +61,21 @@ namespace Content.Client.Stylesheets
             }
 
             sawmill.Debug($"Initialized {_styleRuleCount} style rules in {sw.Elapsed}");
+        }
+
+        private void OnFunkyAmberThemeChanged(bool enabled)
+        {
+            var tys = _reflection.FindTypesWithAttribute<CommonSheetletAttribute>();
+            UnusedSheetlets = [..tys];
+
+            _styleRuleCount = 0;
+            Stylesheets = new Dictionary<string, Stylesheet>();
+            SheetNanotrasen = Init(new NanotrasenStylesheet(new BaseStylesheet.NoConfig(), this));
+            SheetSystem = Init(new SystemStylesheet(new BaseStylesheet.NoConfig(), this));
+            SheetNano = new StyleNano(_resCache).Stylesheet; // TODO: REMOVE (obsolete)
+            SheetSpace = new StyleSpace(_resCache).Stylesheet; // TODO: REMOVE (obsolete)
+
+            _userInterfaceManager.Stylesheet = SheetNanotrasen;
         }
 
         private int _styleRuleCount;

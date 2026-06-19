@@ -1,5 +1,6 @@
 using System.Linq;
 using Content.Client.Stylesheets.Fonts;
+using Content.Client.Stylesheets.Sheetlets;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -57,6 +58,12 @@ public partial class NanotrasenStylesheet : CommonStylesheet
             GetAllSheetletRules<NanotrasenStylesheet, CommonSheetletAttribute>(man),
         };
 
-        Stylesheet = new Stylesheet(rules.SelectMany(x => x).ToArray());
+        var allRules = rules.SelectMany(x => x);
+        if (man.FunkyAmberEnabled)
+        {
+            allRules = allRules.Concat(GetSheetletRules<PalettedStylesheet>(typeof(FunkyAmberSheetlet), man));
+        }
+
+        Stylesheet = new Stylesheet(allRules.ToArray());
     }
 }

@@ -18,6 +18,7 @@ ui-options-value-percent = { TOSTRING($value, "P0") }
 # Misc/General menu
 
 ui-options-discordrich = Enable Discord Rich Presence
+ui-options-funky-amber-theme = Enable FunkyAmber UI theme (requires restart)
 ui-options-general-ui-style = UI Style
 ui-options-general-discord = Discord
 ui-options-general-cursor = Cursor
@@ -79,7 +80,7 @@ ui-options-hud-theme-default = Default
 ui-options-hud-theme-plasmafire = Plasmafire
 ui-options-hud-theme-slimecore = Slimecore
 ui-options-hud-theme-clockwork = Clockwork
-ui-options-hud-theme-retro = Retro
+ui-options-hud-theme-funky-amber = FunkyAmber
 ui-options-hud-theme-minimalist = Minimalist
 ui-options-hud-theme-ashen = Ashen
 ui-options-hud-layout-default = Default

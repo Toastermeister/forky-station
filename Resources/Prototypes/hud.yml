@@ -23,9 +23,9 @@
   order: 4
 
 - type: hudTheme
-  id: SS14RetroTheme
-  name: ui-options-hud-theme-retro
-  path: Retro
+  id: SS14FunkyAmberTheme
+  name: ui-options-hud-theme-funky-amber
+  path: FunkyAmber
   order: 6
 
 - type: hudTheme

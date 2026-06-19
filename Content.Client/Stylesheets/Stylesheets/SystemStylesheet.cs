@@ -1,5 +1,6 @@
 using System.Linq;
 using Content.Client.Stylesheets.Fonts;
+using Content.Client.Stylesheets.Sheetlets;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
@@ -37,19 +38,25 @@ public partial class SystemStylesheet : CommonStylesheet
     public SystemStylesheet(object config, StylesheetManager man) : base(config)
     {
         BaseFont = new NotoFontFamilyStack(ResCache);
-        var rules = new[]
+        var rules = new List<StyleRule[]>
         {
             // Set up important rules that need to go first.
             GetRulesForFont(null, BaseFont, _commonFontSizes),
             // Set up our core rules.
-            [
+            new StyleRule[]
+            {
                 // Declare the default font.
                 Element().Prop(Label.StylePropertyFont, BaseFont.GetFont(PrimaryFontSize)),
-            ],
+            },
             // Finally, load all the other sheetlets.
             GetAllSheetletRules<PalettedStylesheet, CommonSheetletAttribute>(man),
             GetAllSheetletRules<SystemStylesheet, CommonSheetletAttribute>(man),
         };
+
+        if (man.FunkyAmberEnabled)
+        {
+            rules.Add(GetSheetletRules<PalettedStylesheet>(typeof(FunkyAmberSheetlet), man));
+        }
 
         Stylesheet = new Stylesheet(rules.SelectMany(x => x).ToArray());
     }

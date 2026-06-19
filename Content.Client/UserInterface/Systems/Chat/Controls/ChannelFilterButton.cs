@@ -3,13 +3,21 @@ using Content.Client.Resources;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface.Controls;
 
+using Content.Shared.CCVar;
+using Robust.Shared.Configuration;
+using Robust.Shared.IoC;
+
 namespace Content.Client.UserInterface.Systems.Chat.Controls;
 
 public sealed class ChannelFilterButton : ChatPopupButton<ChannelFilterPopup>
 {
-    private static readonly Color ColorNormal = Color.FromHex("#7b7e9e");
-    private static readonly Color ColorHovered = Color.FromHex("#9699bb");
-    private static readonly Color ColorPressed = Color.FromHex("#789B8C");
+    private static readonly Color DefaultColorNormal = Color.FromHex("#7b7e9e");
+    private static readonly Color DefaultColorHovered = Color.FromHex("#9699bb");
+    private static readonly Color DefaultColorPressed = Color.FromHex("#789B8C");
+
+    private Color ColorNormal => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff6a00") : DefaultColorNormal;
+    private Color ColorHovered => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#ff9a3d") : DefaultColorHovered;
+    private Color ColorPressed => IoCManager.Resolve<IConfigurationManager>().GetCVar(CCVars.FunkyAmberEnabled) ? Color.FromHex("#994400") : DefaultColorPressed;
     private readonly TextureRect? _textureRect;
     private readonly ChatUIController _chatUIController;
 

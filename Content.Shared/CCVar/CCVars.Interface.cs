@@ -23,6 +23,12 @@ public sealed partial class CCVars
         CVarDef.Create("ui.layout", "Default", CVar.CLIENTONLY | CVar.ARCHIVE);
 
     /// <summary>
+    /// Applies the FunkyAmber UI theme.
+    /// </summary>
+    public static readonly CVarDef<bool> FunkyAmberEnabled =
+        CVarDef.Create("ui.funky_amber", false, CVar.CLIENTONLY | CVar.ARCHIVE);
+
+    /// <summary>
     /// The dimensions for the chat window in Default UI mode
     /// </summary>
     public static readonly CVarDef<string> DefaultScreenChatSize =

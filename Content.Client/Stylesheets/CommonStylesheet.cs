@@ -13,8 +13,8 @@ public abstract class CommonStylesheet : PalettedStylesheet, IButtonConfig, IWin
     /// </remarks>
     protected CommonStylesheet(object config) : base(config) { }
 
-    ResPath ICheckboxConfig.CheckboxUncheckedPath => new("checkbox_unchecked.svg.96dpi.png");
-    ResPath ICheckboxConfig.CheckboxCheckedPath => new("checkbox_checked.svg.96dpi.png");
+    ResPath ICheckboxConfig.CheckboxUncheckedPath => FunkyAmberEnabled ? new("Monotone/monotone_checkbox_unchecked.svg.96dpi.png") : new("checkbox_unchecked.svg.96dpi.png");
+    ResPath ICheckboxConfig.CheckboxCheckedPath => FunkyAmberEnabled ? new("Monotone/monotone_checkbox_checked.svg.96dpi.png") : new("checkbox_checked.svg.96dpi.png");
 
     ResPath IStripebackConfig.StripebackPath => new("stripeback.svg.96dpi.png");
 
@@ -57,10 +57,10 @@ public abstract class CommonStylesheet : PalettedStylesheet, IButtonConfig, IWin
     ResPath IWindowConfig.WindowBackgroundBorderedPath => new("window_background_bordered.png");
     ResPath IWindowConfig.TransparentWindowBackgroundBorderedPath => new("transparent_window_background_bordered.png");
 
-    ResPath IButtonConfig.BaseButtonPath => new("button.svg.96dpi.png");
-    ResPath IButtonConfig.OpenLeftButtonPath => new("button.svg.96dpi.png");
-    ResPath IButtonConfig.OpenRightButtonPath => new("button.svg.96dpi.png");
-    ResPath IButtonConfig.OpenBothButtonPath => new("button.svg.96dpi.png");
+    ResPath IButtonConfig.BaseButtonPath => FunkyAmberEnabled ? new("Monotone/monotone_button.svg.96dpi.png") : new("button.svg.96dpi.png");
+    ResPath IButtonConfig.OpenLeftButtonPath => FunkyAmberEnabled ? new("Monotone/monotone_button_open_left.svg.96dpi.png") : new("button.svg.96dpi.png");
+    ResPath IButtonConfig.OpenRightButtonPath => FunkyAmberEnabled ? new("Monotone/monotone_button_open_right.svg.96dpi.png") : new("button.svg.96dpi.png");
+    ResPath IButtonConfig.OpenBothButtonPath => FunkyAmberEnabled ? new("Monotone/monotone_button_open_both.svg.96dpi.png") : new("button.svg.96dpi.png");
     ResPath IButtonConfig.SmallButtonPath => new("button_small.svg.96dpi.png");
     ResPath IButtonConfig.RoundedButtonPath => new("rounded_button.svg.96dpi.png");
     ResPath IButtonConfig.RoundedButtonBorderedPath => new("rounded_button_bordered.svg.96dpi.png");
