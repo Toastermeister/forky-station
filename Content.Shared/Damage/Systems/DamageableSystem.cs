@@ -1,6 +1,7 @@
 using System.Linq;
 using Content.Shared.Chemistry;
 using Content.Shared.Damage.Components;
+using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Explosion.EntitySystems;
 using Content.Shared.Mobs.Systems;
 using Robust.Shared.Configuration;
@@ -43,7 +44,8 @@ public sealed partial class DamageableSystem : EntitySystem
     ///     This updates cached damage information, flags the component as dirty, and raises a damage changed event.
     ///     The damage changed event is used by other systems, such as damage thresholds.
     /// </remarks>
-    private void OnEntityDamageChanged(
+    [Access(typeof(DamageableSystem), typeof(WoundableBodySystem))]
+    public void OnEntityDamageChanged(
         Entity<DamageableComponent> ent,
         DamageSpecifier? damageDelta = null,
         bool interruptsDoAfters = true,

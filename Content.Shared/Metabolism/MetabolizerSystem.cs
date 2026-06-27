@@ -320,5 +320,17 @@ public sealed class MetabolizerSystem : EntitySystem
 
         return true;
     }
+
+    // Begin Offbrand - public wrapper for VitalsAnalyzer
+    public bool TryGetMetabolitesSolution(
+        Entity<MetabolizerComponent, OrganComponent?, SolutionContainerManagerComponent?> ent,
+        MetabolismSolutionEntry solutionData,
+        [NotNullWhen(true)] out Solution? solution,
+        [NotNullWhen(true)] out Entity<SolutionComponent>? solutionEntity,
+        [NotNullWhen(true)] out EntityUid? solutionOwner)
+    {
+        return LookupSolution(ent, solutionData, false, out solution, out solutionEntity, out solutionOwner);
+    }
+    // End Offbrand
 }
 

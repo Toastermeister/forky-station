@@ -125,19 +125,17 @@ public sealed partial class DamageableSystem
         bool ignoreGlobalModifiers = false
     )
     {
-        var damageDone = new DamageSpecifier();
-
         if (!_damageableQuery.Resolve(ent, ref ent.Comp, false))
-            return damageDone;
+            return new();
 
         if (damage.Empty)
-            return damageDone;
+            return new();
 
         var before = new BeforeDamageChangedEvent(damage, origin);
         RaiseLocalEvent(ent, ref before);
 
         if (before.Cancelled)
-            return damageDone;
+            return new();
 
         // Apply resistances
         if (!ignoreResistances)
@@ -148,41 +146,21 @@ public sealed partial class DamageableSystem
             )
                 damage = DamageSpecifier.ApplyModifierSet(damage, modifierSet);
 
-            // TODO DAMAGE
-            // byref struct event.
             var ev = new DamageModifyEvent(damage, origin);
             RaiseLocalEvent(ent, ev);
             damage = ev.Damage;
 
             if (damage.Empty)
-                return damageDone;
+                return new();
         }
 
         if (!ignoreGlobalModifiers)
             damage = ApplyUniversalAllModifiers(damage);
 
+        var dealtEvt = new DamageDealtEvent(damage, origin, interruptsDoAfters);
+        RaiseLocalEvent(ent, ref dealtEvt);
 
-        damageDone.DamageDict.EnsureCapacity(damage.DamageDict.Count);
-
-        var dict = ent.Comp.Damage.DamageDict;
-        foreach (var (type, value) in damage.DamageDict)
-        {
-            // CollectionsMarshal my beloved.
-            if (!dict.TryGetValue(type, out var oldValue))
-                continue;
-
-            var newValue = FixedPoint2.Max(FixedPoint2.Zero, oldValue + value);
-            if (newValue == oldValue)
-                continue;
-
-            dict[type] = newValue;
-            damageDone.DamageDict[type] = newValue - oldValue;
-        }
-
-        if (!damageDone.Empty)
-            OnEntityDamageChanged((ent, ent.Comp), damageDone, interruptsDoAfters, origin);
-
-        return damageDone;
+        return damage;
     }
 
     /// <summary>

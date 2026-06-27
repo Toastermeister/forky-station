@@ -1,4 +1,5 @@
 using Content.Shared.CCVar;
+using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.FixedPoint;
@@ -18,6 +19,8 @@ public sealed partial class DamageableSystem
         SubscribeLocalEvent<DamageableComponent, ComponentGetState>(DamageableGetState);
         SubscribeLocalEvent<DamageableComponent, OnIrradiatedEvent>(OnIrradiated);
         SubscribeLocalEvent<DamageableComponent, RejuvenateEvent>(OnRejuvenate);
+        SubscribeLocalEvent<InjurableComponent, DamageDealtEvent>(OnInjurableDamageDealt);
+        SubscribeLocalEvent<DamageableComponent, DamageDealtEvent>(OnDamageableDamageDealt);
 
         _appearanceQuery = GetEntityQuery<AppearanceComponent>();
         _damageableQuery = GetEntityQuery<DamageableComponent>();
@@ -201,6 +204,63 @@ public sealed partial class DamageableSystem
 
         OnEntityDamageChanged(ent, delta);
     }
+
+    private void OnInjurableDamageDealt(Entity<InjurableComponent> ent, ref DamageDealtEvent args)
+    {
+        if (!_damageableQuery.TryGetComponent(ent, out var damageable))
+            return;
+
+        var damageDone = new DamageSpecifier();
+        damageDone.DamageDict.EnsureCapacity(args.Damage.DamageDict.Count);
+
+        var dict = damageable.Damage.DamageDict;
+        foreach (var (type, value) in args.Damage.DamageDict)
+        {
+            if (!dict.ContainsKey(type))
+                continue;
+
+            var oldValue = dict[type];
+            var newValue = FixedPoint2.Max(FixedPoint2.Zero, oldValue + value);
+            if (newValue == oldValue)
+                continue;
+
+            dict[type] = newValue;
+            damageDone.DamageDict[type] = newValue - oldValue;
+        }
+
+        if (!damageDone.Empty)
+            OnEntityDamageChanged((ent, damageable), damageDone, args.InterruptsDoAfters, args.Origin);
+    }
+
+    private void OnDamageableDamageDealt(Entity<DamageableComponent> ent, ref DamageDealtEvent args)
+    {
+        // If the entity has a dedicated damage system, skip the fallback
+        if (HasComp<InjurableComponent>(ent) || HasComp<WoundableBodyComponent>(ent))
+            return;
+
+        var damageable = ent.Comp;
+
+        var damageDone = new DamageSpecifier();
+        damageDone.DamageDict.EnsureCapacity(args.Damage.DamageDict.Count);
+
+        var dict = damageable.Damage.DamageDict;
+        foreach (var (type, value) in args.Damage.DamageDict)
+        {
+            if (!dict.ContainsKey(type))
+                continue;
+
+            var oldValue = dict[type];
+            var newValue = FixedPoint2.Max(FixedPoint2.Zero, oldValue + value);
+            if (newValue == oldValue)
+                continue;
+
+            dict[type] = newValue;
+            damageDone.DamageDict[type] = newValue - oldValue;
+        }
+
+        if (!damageDone.Empty)
+            OnEntityDamageChanged(ent, damageDone, args.InterruptsDoAfters, args.Origin);
+    }
 }
 
 /// <summary>
@@ -208,6 +268,13 @@ public sealed partial class DamageableSystem
 /// </summary>
 [ByRefEvent]
 public record struct BeforeDamageChangedEvent(DamageSpecifier Damage, EntityUid? Origin = null, bool Cancelled = false);
+
+/// <summary>
+///     Raised on an entity when damage is about to be dealt.
+///     Used by the Offbrand wound system to process damage before it is applied.
+/// </summary>
+[ByRefEvent]
+public readonly record struct DamageDealtEvent(DamageSpecifier Damage, EntityUid? Origin, bool InterruptsDoAfters);
 
 /// <summary>
 ///     Raised on an entity when damage is about to be dealt,

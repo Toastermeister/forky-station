@@ -36,8 +36,9 @@
   - type: PlaceableSurface
     placeCentered: true
   - type: Damageable
-    damageContainer: Inorganic
     damageModifierSet: Metallic
+  - type: Injurable
+    damageContainer: Inorganic
   - type: Destructible
     thresholds:
     - trigger: # Excess damage, don't spawn entities
@@ -62,6 +63,7 @@
     noRot: true
   - type: Anchorable
   - type: Pullable
+  - type: StationaryAnalyzerStrap # Offbrand
 
 
 - type: entity
@@ -83,7 +85,7 @@
     node: medicalbed
   - type: GuideHelp
     guides:
-    - MedicalDoctor
+    - OffbrandPhysician # Offbrand
 
 - type: entity
   parent: Bed

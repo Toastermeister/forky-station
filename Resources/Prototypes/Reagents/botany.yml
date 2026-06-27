@@ -123,6 +123,11 @@
     - !type:RobustHarvest {}
   metabolisms:
     Bloodstream:
+      # Begin Offbrand
+      metabolismRate: 0.2
+      statusEffects:
+      - statusEffect: StatusEffectPainkillersNegligibleRobustHarvest
+      # End Offbrand
       effects:
       - !type:HealthChange
         damage:

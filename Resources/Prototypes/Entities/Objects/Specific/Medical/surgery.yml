@@ -9,6 +9,14 @@
   - type: Tag
     tags:
     - SurgeryTool
+  # Begin Offbrand
+  - type: SurgeryTool
+    slotsToCheck: [INNERCLOTHING, OUTERCLOTHING]
+    slotsDenialPopup: surgery-must-be-stripped
+    downDenialPopup: surgery-must-be-down
+    whitelist:
+      tags: [OperatableClothing]
+  # End Offbrand
 
 # Cautery
 
@@ -19,10 +27,11 @@
   description: A surgical tool used to cauterize open wounds.
   components:
   - type: Sprite
-    sprite: Objects/Specific/Medical/Surgery/cautery.rsi
+    sprite: _Offbrand/surgery_tools.rsi
     state: cautery
   - type: Item
-    sprite: Objects/Specific/Medical/Surgery/cautery.rsi
+    sprite: _Offbrand/surgery_tools.rsi
+    heldPrefix: cautery
     storedRotation: 90
   - type: MeleeWeapon
     damage:
@@ -30,6 +39,11 @@
         Heat: 5
     soundHit:
       path: /Audio/Effects/lightburn.ogg
+  - type: Tool
+    qualities:
+    - Cauterizing
+    useSound:
+      collection: Cautery
 
 # Drill
 
@@ -40,13 +54,14 @@
   description: A surgical drill for making holes into hard material.
   components:
   - type: Sprite
-    sprite: Objects/Specific/Medical/Surgery/drill.rsi
+    sprite: _Offbrand/surgery_tools.rsi
     state: drill
   - type: Item
-    sprite: Objects/Specific/Medical/Surgery/drill.rsi
+    sprite: _Offbrand/surgery_tools.rsi
+    heldPrefix: drill
     shape:
     - 0,0,1,0
-    - 1,1,1,1
+    - 0,1,0,1
   - type: MeleeWeapon
     damage:
       types:
@@ -74,10 +89,11 @@
     types:
       - Knife
   - type: Sprite
-    sprite: Objects/Specific/Medical/Surgery/scalpel.rsi
+    sprite: _Offbrand/surgery_tools.rsi
     state: scalpel
   - type: Item
-    sprite: Objects/Specific/Medical/Surgery/scalpel.rsi
+    sprite: _Offbrand/surgery_tools.rsi
+    heldPrefix: scalpel
     storedRotation: 90
   - type: MeleeWeapon
     wideAnimationRotation: 90
@@ -146,10 +162,11 @@
   description: A surgical tool used to hold open incisions.
   components:
   - type: Sprite
-    sprite: Objects/Specific/Medical/Surgery/scissors.rsi
+    sprite: _Offbrand/surgery_tools.rsi
     state: retractor
   - type: Item
-    sprite: Objects/Specific/Medical/Surgery/scissors.rsi
+    sprite: _Offbrand/surgery_tools.rsi
+    heldPrefix: retractor
     storedRotation: 90
 
 - type: entity
@@ -159,8 +176,10 @@
   description: A surgical tool used to compress blood vessels to prevent bleeding.
   components:
   - type: Sprite
+    sprite: _Offbrand/surgery_tools.rsi
     state: hemostat
   - type: Item
+    sprite: _Offbrand/surgery_tools.rsi
     heldPrefix: hemostat
     storedRotation: 90
 
@@ -183,11 +202,12 @@
     types:
       - Knife
   - type: Sprite
-    sprite: Objects/Specific/Medical/Surgery/saw.rsi
+    sprite: _Offbrand/surgery_tools.rsi
     state: saw
   - type: Item
     size: Normal
-    sprite: Objects/Specific/Medical/Surgery/saw.rsi
+    sprite: _Offbrand/surgery_tools.rsi
+    heldPrefix: saw
     storedRotation: 90
   - type: Tool
     qualities:

@@ -1,3 +1,4 @@
+using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.Damage.Systems;
 using Content.Shared.FixedPoint;
@@ -18,7 +19,7 @@ namespace Content.Shared.Damage.Components;
 /// </remarks>
 [RegisterComponent]
 [NetworkedComponent]
-[Access(typeof(DamageableSystem), Other = AccessPermissions.ReadExecute)]
+[Access(typeof(DamageableSystem), typeof(WoundableBodySystem), Other = AccessPermissions.ReadExecute)]
 public sealed partial class DamageableComponent : Component
 {
     /// <summary>

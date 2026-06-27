@@ -1,3 +1,6 @@
+# Basically all different loot tables that the mail can choose from
+
+# Loot tables
 - type: entityTable
   id: PackageRareDepartmentBundlesTable
   table: !type:GroupSelector
@@ -36,7 +39,7 @@
     - id: Brutepack1
       amount: !type:RangeNumberSelector
         range: 1, 4
-    - id: Bloodpack1
+    - id: ChemistryBottleParacetamol # Offbrand
       amount: !type:RangeNumberSelector
         range: 1, 4
     - id: Ointment1

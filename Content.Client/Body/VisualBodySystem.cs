@@ -67,7 +67,7 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
         ApplyVisual(ent, body);
     }
 
-    private void ApplyVisual(Entity<VisualOrganComponent> ent, EntityUid target)
+    public void ApplyVisual(Entity<VisualOrganComponent> ent, EntityUid target)
     {
         if (!_sprite.LayerMapTryGet(target, ent.Comp.Layer, out var index, true))
             return;

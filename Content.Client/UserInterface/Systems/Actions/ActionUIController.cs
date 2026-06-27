@@ -155,7 +155,7 @@ public sealed class ActionUIController : UIController, IOnStateChanged<GameplayS
     /// <summary>
     ///     If the user clicked somewhere, and they are currently targeting an action, try and perform it.
     /// </summary>
-    private bool TargetingOnUse(in PointerInputCmdArgs args)
+    internal bool TargetingOnUse(in PointerInputCmdArgs args)
     {
         if (!_timing.IsFirstTimePredicted || _actionsSystem == null || SelectingTargetFor is not { } actionId)
             return false;

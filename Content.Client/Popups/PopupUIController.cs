@@ -25,6 +25,7 @@ public sealed class PopupUIController : UIController, IOnStateEntered<GameplaySt
     {
         base.Initialize();
         var cache = IoCManager.Resolve<IResourceCache>();
+
         // FUNKY EDIT START
         _smallFont = new VectorFont(cache.GetResource<FontResource>("/Fonts/Atkinson/AtkinsonHyperlegibleNext-Italic.ttf"), 10);
         _mediumFont = new VectorFont(cache.GetResource<FontResource>("/Fonts/Atkinson/AtkinsonHyperlegibleNext-Italic.ttf"), 12);
@@ -36,7 +37,7 @@ public sealed class PopupUIController : UIController, IOnStateEntered<GameplaySt
     {
         _popupControl = new PopupRootControl(_popup, this);
 
-        UIManager.RootControl.AddChild(_popupControl);
+        UIManager.PopupRoot.AddChild(_popupControl); // Offbrand - popups go over everything
     }
 
     public void OnStateExited(GameplayState state)
@@ -44,7 +45,7 @@ public sealed class PopupUIController : UIController, IOnStateEntered<GameplaySt
         if (_popupControl == null)
             return;
 
-        UIManager.RootControl.RemoveChild(_popupControl);
+        UIManager.PopupRoot.RemoveChild(_popupControl); // Offbrand - popups go over everything
         _popupControl = null;
     }
 

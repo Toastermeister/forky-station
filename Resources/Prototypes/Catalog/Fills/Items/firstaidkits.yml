@@ -1,3 +1,4 @@
+#Entities found at entities/objects/specific/medical
 - type: entity
   id: MedkitFilled
   suffix: Filled
@@ -96,8 +97,7 @@
         children:
         - id: MedicatedSuture
         - id: RegenerativeMesh
-        - id: Bloodpack
-          amount: 2
+        - id: ChemistryBottleTramadol # Offbrand
 
 - type: entity
   id: MedkitCombatFilled
@@ -111,7 +111,7 @@
         - id: MedicatedSuture
         - id: RegenerativeMesh
         - id: SyringeEphedrine
-        - id: SyringeSaline
+        - id: SyringeOxycodone # Offbrand
         - id: BruteAutoInjector
         - id: BurnAutoInjector
 
