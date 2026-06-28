@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Construction.NodeEntities;
 using Content.Shared.Construction.Serialization;
+using Robust.Shared.Localization;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
@@ -44,6 +45,14 @@ namespace Content.Shared.Construction
         /// </remarks>
         [DataField("doNotReplaceInheritingEntities")]
         public bool DoNotReplaceInheritingEntities = false;
+
+        // Begin Offbrand
+        [DataField]
+        public LocId? LocalizedName;
+
+        [DataField]
+        public LocId Header = "construction-component-to-create-header";
+        // End Offbrand
 
         public ConstructionGraphEdge? GetEdge(string target)
         {

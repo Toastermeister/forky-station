@@ -303,13 +303,47 @@ namespace Content.Shared.Chemistry.Reagent
         [DataField]
         public Dictionary<ProtoId<ReagentPrototype>, FixedPoint2>? Metabolites;
 
+        // Begin Offbrand - Status Effects
+        [DataField]
+        public List<ReagentStatusEffectEntry> StatusEffects = new();
+
         public string EntityEffectFormat => "guidebook-reagent-effect-description";
 
         public ReagentEffectsGuideEntry MakeGuideEntry(IPrototypeManager prototype, IEntitySystemManager entSys, ReagentPrototype proto)
         {
-            return new ReagentEffectsGuideEntry(MetabolismRate, proto.GuidebookReagentEffectsDescription(prototype, entSys, Effects, MetabolismRate).ToArray(), Metabolites);
+            return new ReagentEffectsGuideEntry(MetabolismRate,
+                proto.GuidebookReagentEffectsDescription(prototype, entSys, Effects, MetabolismRate)
+                    .Concat(StatusEffects.Select(effect => effect.Describe(prototype, entSys))
+                        .Where(effect => effect is not null)
+                        .Select(x => x!))
+                    .ToArray(),
+                Metabolites);
         }
     }
+
+    // Begin Offbrand
+    [DataDefinition]
+    public sealed partial class ReagentStatusEffectEntry
+    {
+        [DataField]
+        public Content.Shared.EntityConditions.EntityCondition[]? Conditions;
+
+        [DataField]
+        public EntProtoId StatusEffect;
+
+        public string? Describe(IPrototypeManager prototype, IEntitySystemManager entSys)
+        {
+            if (!prototype.Resolve(StatusEffect, out var effectProtoData))
+                return null;
+
+            return Loc.GetString("reagent-guidebook-status-effect", ("effect", effectProtoData.Name ?? string.Empty),
+                ("conditionCount", Conditions?.Length ?? 0),
+                ("conditions",
+                    Content.Shared.Localizations.ContentLocalizationManager.FormatList(Conditions?.Select(x => x.EntityConditionGuidebookText(prototype)).ToList() ??
+                                                            new List<string>())));
+        }
+    }
+    // End Offbrand
 
     [Serializable, NetSerializable]
     public struct ReagentEffectsGuideEntry

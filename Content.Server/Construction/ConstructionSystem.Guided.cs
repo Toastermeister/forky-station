@@ -89,9 +89,11 @@ namespace Content.Server.Construction
                     }
                     else
                     {
+                        // Begin Offbrand
                         args.PushMarkup(Loc.GetString(
-                            "construction-component-to-create-header",
-                            ("targetName", target.Name)) + "\n");
+                            target.Header,
+                            ("targetName", target.LocalizedName is { } name ? Loc.GetString(name) : target.Name)) + "\n");
+                        // End Offbrand
                     }
                 }
 

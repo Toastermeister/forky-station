@@ -24,6 +24,7 @@ wound-clamped = [color=red]Patient has clamped arteries.[/color]
 wound-retracted = [color=red]Patient has retracted skin.[/color]
 wound-ribcage-open = [color=red]Patient has open ribcage.[/color]
 wound-arterial-bleeding = [color=red]Patient has arterial bleeding.[/color]
+wound-internal-cut-tendon = [color=red]Patient has a cut tendon.[/color]
 
 health-analyzer-window-no-patient-damages = Patient has no injuries.
 

@@ -4,10 +4,10 @@
   name: iv bag
   description: Used to hold blood or other fluids to administer intravenously to a patient.
   components:
-  - type: Solution
-    id: beaker
-    solution:
-      maxVol: 400
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 400
   - type: Sprite
     sprite: _Offbrand/iv_bag.rsi
     layers:

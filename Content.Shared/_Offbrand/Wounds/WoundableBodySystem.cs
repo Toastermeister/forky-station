@@ -61,7 +61,7 @@ public sealed partial class WoundableBodySystem : OffbrandDamageSystem
             var organs = _woundableOrgan.GetWoundableOrgans(ent);
             var target = SharedRandomExtensions.Pick(organs, rand);
 
-            var organEvt = new DamageDealtEvent(DamageSpecifier.GetPositive(delta), args.Origin, args.InterruptsDoAfters);
+            var organEvt = args with { Damage = DamageSpecifier.GetPositive(delta) };
             RaiseLocalEvent(target, ref organEvt);
         }
 

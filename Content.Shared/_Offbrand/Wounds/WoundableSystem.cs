@@ -28,7 +28,7 @@ public sealed partial class WoundableSystem : EntitySystem
 
         SubscribeLocalEvent<WoundableComponent, AfterAutoHandleStateEvent>(OnAfterAutoHandleState);
         SubscribeLocalEvent<WoundableComponent, RefreshWoundsEvent>(OnWoundableRefreshWounds);
-        SubscribeLocalEvent<WoundableComponent, DamageChangedEvent>(OnDamageDealt);
+        SubscribeLocalEvent<WoundableComponent, DamageDealtEvent>(OnDamageDealt);
         SubscribeLocalEvent<WoundableComponent, BodyRelayedEvent<WoundGetDamageEvent>>(OnGetWoundDamages);
 
         SubscribeLocalEvent<WoundComponent, StatusEffectRelayedEvent<WoundGetDamageEvent>>(OnWoundGetDamage);
@@ -322,12 +322,9 @@ public sealed partial class WoundableSystem : EntitySystem
         RaiseLocalEvent(target, ref evt);
     }
 
-    private void OnDamageDealt(Entity<WoundableComponent> ent, ref DamageChangedEvent args)
+    private void OnDamageDealt(Entity<WoundableComponent> ent, ref DamageDealtEvent args)
     {
-        if (args.DamageDelta is not { } damage)
-            return;
-
-        foreach (var (type, dmg) in damage.DamageDict)
+        foreach (var (type, dmg) in args.Damage.DamageDict)
         {
             if (dmg <= FixedPoint2.Zero)
                 continue;
