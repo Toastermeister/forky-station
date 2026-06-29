@@ -181,13 +181,43 @@ public sealed class OffbrandHealthDollControl : SpriteView
             return;
         }
 
-        if (args.Function == EngineKeyFunctions.Use)
+        var func = args.Function;
+        var funcId = _inputManager.NetworkBindMap.KeyFunctionID(func);
+        var message = new ClientFullInputCmdMessage(
+            _timing.CurTick,
+            _timing.TickFraction,
+            funcId)
         {
-            if (_body is { } body)
-            {
-                _examine.DoExamine(_hoveredOrgan.Value, displayTarget: _body);
-                args.Handle();
-            }
+            State = BoundKeyState.Down,
+            Coordinates = EntMan.GetComponent<TransformComponent>(_hoveredOrgan.Value).Coordinates,
+            ScreenCoordinates = args.PointerLocation,
+            Uid = _hoveredOrgan.Value,
+        };
+
+        var actions = UserInterfaceManager.GetUIController<ActionUIController>();
+        var cmd = new PointerInputCmdHandler.PointerInputCmdArgs(
+            _player.LocalSession,
+            EntMan.GetComponent<TransformComponent>(_hoveredOrgan.Value).Coordinates,
+            args.PointerLocation,
+            _hoveredOrgan.Value,
+            BoundKeyState.Down,
+            message
+        );
+
+        if (args.Function == EngineKeyFunctions.Use && actions.TargetingOnUse(in cmd))
+        {
+            args.Handle();
+            return;
+        }
+
+        if (args.Function == EngineKeyFunctions.Use ||
+            args.Function == ContentKeyFunctions.ActivateItemInWorld ||
+            args.Function == ContentKeyFunctions.AltActivateItemInWorld ||
+            args.Function == ContentKeyFunctions.Point ||
+            args.Function == ContentKeyFunctions.TryPullObject)
+        {
+            _inputSystem.HandleInputCommand(_player.LocalSession, func, message);
+            args.Handle();
         }
     }
 }
