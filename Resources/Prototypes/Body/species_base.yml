@@ -240,4 +240,5 @@
   - type: PainMetabolicRate
     quadraticFactor: 0.00005
     linearFactor: -0.0025
+    constantFactor: 1.0
   - type: FootprintOwner # Funky change

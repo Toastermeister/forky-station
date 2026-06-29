@@ -22,9 +22,6 @@
     - damageTypes: [Heat, Cold, Caustic, Shock]
       minimumTotalDamage: 200
       conversionFactor: 0.6
-  - type: HeartStopOnHighStrain
-    chance: 0.05
-    threshold: 0.75
 
 - type: entity
   abstract: true
@@ -111,6 +108,7 @@
     coldCoefficient: -0.01
     coldConstant: 2
   - type: DamageAlertsOrgan
+    alertCategory: Health
     alertThresholds:
       15: MinorLungDamage
       40: SevereLungDamage
