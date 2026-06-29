@@ -283,6 +283,10 @@
 - type: entity
   parent: [ OrganBaseHeart, OrganReptilianInternal, OrganReptilianMetabolizer ]
   id: OrganReptilianHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Reptilian-ColdA"
+    bloodReagent: Blood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganReptilianInternal, OrganReptilianMetabolizer ]

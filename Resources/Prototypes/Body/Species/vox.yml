@@ -361,10 +361,18 @@
 - type: entity
   parent: [ OrganBaseLungs, OrganVoxInternal, OrganVoxMetabolizer ]
   id: OrganVoxLungs
+  components:
+  - type: RespirationProvider
+    breathableGas: Nitrogen
+    exhaledGas: CarbonDioxide
 
 - type: entity
   parent: [ OrganBaseHeart, OrganVoxInternal, OrganVoxMetabolizer ]
   id: OrganVoxHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Vox-AmO"
+    bloodReagent: AmmoniaBlood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganVoxInternal, OrganVoxMetabolizer ]

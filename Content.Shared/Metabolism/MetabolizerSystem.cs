@@ -14,6 +14,7 @@ using Content.Shared.EntityEffects.Effects.Body;
 using Content.Shared.EntityEffects.Effects.Solution;
 using Content.Shared.FixedPoint;
 using Content.Shared.Mobs.Systems;
+using Content.Shared._Offbrand.Chemistry;
 using Robust.Shared.Collections;
 using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
@@ -33,6 +34,7 @@ public sealed class MetabolizerSystem : EntitySystem
     [Dependency] private readonly SharedEntityEffectsSystem _entityEffects = default!;
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainerSystem = default!;
     [Dependency] private readonly INetManager _net = default!;
+    [Dependency] private readonly ChemicalInteractionSystem _chemicalInteraction = default!;
 
     private EntityQuery<OrganComponent> _organQuery;
     private EntityQuery<SolutionContainerManagerComponent> _solutionQuery;
@@ -196,6 +198,9 @@ public sealed class MetabolizerSystem : EntitySystem
 
             var rate = solutionData.MetabolizeAll ? quantity : entry.MetabolismRate;
 
+            // _Offbrand: competitive binding (e.g., Charcoal reduces absorption)
+            rate *= _chemicalInteraction.GetCompetitiveBindingModifier(solution);
+
             // Remove $rate, as long as there's enough reagent there to actually remove that much
             var mostToRemove = FixedPoint2.Clamp(rate, 0, quantity);
 
@@ -214,6 +219,13 @@ public sealed class MetabolizerSystem : EntitySystem
                 continue;
 
             var actualEntity = ent.Comp2?.Body ?? solutionOwner.Value;
+
+            // _Offbrand: chemical interactions (synergy/antagonism modify effect strength)
+            scale *= _chemicalInteraction.GetInteractionModifier(
+                reagent.Prototype,
+                solution,
+                actualEntity,
+                solutionEntity);
 
             // do all effects, if conditions apply
             foreach (var effect in entry.Effects)

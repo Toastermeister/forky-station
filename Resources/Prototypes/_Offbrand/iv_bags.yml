@@ -286,15 +286,195 @@
       - ReagentId: Slime
         Quantity: 400
 
+# Typed blood bag variants for transfusion compatibility
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodAPos
+  suffix: A+
+  components:
+  - type: Label
+    currentLabel: Blood bag (A+)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodANeg
+  suffix: A-
+  components:
+  - type: Label
+    currentLabel: Blood bag (A-)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodBPos
+  suffix: B+
+  components:
+  - type: Label
+    currentLabel: Blood bag (B+)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodBNeg
+  suffix: B-
+  components:
+  - type: Label
+    currentLabel: Blood bag (B-)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodABPos
+  suffix: AB+
+  components:
+  - type: Label
+    currentLabel: Blood bag (AB+)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodABNeg
+  suffix: AB-
+  components:
+  - type: Label
+    currentLabel: Blood bag (AB-)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodOPos
+  suffix: O+
+  components:
+  - type: Label
+    currentLabel: Blood bag (O+)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagBlood
+  id: IVBagBloodONeg
+  suffix: O- (Universal Donor)
+  components:
+  - type: Label
+    currentLabel: Blood bag (O-) - Universal Donor
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: Blood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagCopperBlood
+  id: IVBagCopperBloodAPos
+  suffix: Hα+
+  components:
+  - type: Label
+    currentLabel: Hemocyanin bag (Hα+)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: CopperBlood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagCopperBlood
+  id: IVBagCopperBloodANeg
+  suffix: Hα- (Universal Donor)
+  components:
+  - type: Label
+    currentLabel: Hemocyanin bag (Hα-) - Universal Donor
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: CopperBlood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagAmmoniaBlood
+  id: IVBagAmmoniaBloodO
+  suffix: AmO (Universal Donor)
+  components:
+  - type: Label
+    currentLabel: Ammonia blood bag (AmO) - Universal Donor
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: AmmoniaBlood
+          Quantity: 400
+
+- type: entity
+  parent: IVBagAmmoniaBlood
+  id: IVBagAmmoniaBloodAB
+  suffix: AmAB
+  components:
+  - type: Label
+    currentLabel: Ammonia blood bag (AmAB)
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        reagents:
+        - ReagentId: AmmoniaBlood
+          Quantity: 400
+
 - type: entityTable
   id: BloodBagFill
   table: !type:AllSelector
     children:
     - id: IVBag
     - id: IVBag
+    - id: IVBagBloodAPos
+    - id: IVBagBloodANeg
+    - id: IVBagBloodBPos
+    - id: IVBagBloodBNeg
+    - id: IVBagBloodABPos
+    - id: IVBagBloodABNeg
+    - id: IVBagBloodOPos
+    - id: IVBagBloodONeg
     - id: IVBagAmmoniaBlood
-    - id: IVBagBlood
+    - id: IVBagAmmoniaBloodO
+    - id: IVBagAmmoniaBloodAB
     - id: IVBagCopperBlood
+    - id: IVBagCopperBloodAPos
+    - id: IVBagCopperBloodANeg
     - id: IVBagInsectBlood
     - id: IVBagSap
     - id: IVBagSlime

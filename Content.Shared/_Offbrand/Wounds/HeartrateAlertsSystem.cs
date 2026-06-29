@@ -1,6 +1,5 @@
 using Content.Shared._Offbrand.Organs;
 using Content.Shared.Alert;
-using Content.Shared.FixedPoint;
 
 namespace Content.Shared._Offbrand.Wounds;
 
@@ -14,22 +13,15 @@ public sealed partial class HeartrateAlertsSystem : EntitySystem
 
         SubscribeLocalEvent<HeartrateAlertsComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<HeartrateAlertsComponent, ComponentShutdown>(OnComponentShutdown);
-        SubscribeLocalEvent<HeartrateAlertsComponent, AfterStrainChangedEvent>(OnAfterStrainChanged);
         SubscribeLocalEvent<HeartrateAlertsComponent, HeartStoppedEvent>(OnHeartStopped);
         SubscribeLocalEvent<HeartrateAlertsComponent, HeartStartedEvent>(OnHeartStarted);
     }
 
     private void UpdateAlert(Entity<HeartrateAlertsComponent> ent)
     {
-        var perfusion = Comp<PerfusionComponent>(ent);
         if (ent.Comp.Beating)
         {
-            var range = _alerts.GetSeverityRange(ent.Comp.StrainAlert);
-            var min = _alerts.GetMinSeverity(ent.Comp.StrainAlert);
-            var max = _alerts.GetMaxSeverity(ent.Comp.StrainAlert);
-
-            var severity = Math.Min(min + (short)Math.Round(range * perfusion.Strain), max);
-            _alerts.ShowAlert(ent.Owner, ent.Comp.StrainAlert, (short)severity);
+            _alerts.ShowAlert(ent.Owner, ent.Comp.StrainAlert, 0);
         }
         else
         {
@@ -38,11 +30,6 @@ public sealed partial class HeartrateAlertsSystem : EntitySystem
     }
 
     private void OnMapInit(Entity<HeartrateAlertsComponent> ent, ref MapInitEvent args)
-    {
-        UpdateAlert(ent);
-    }
-
-    private void OnAfterStrainChanged(Entity<HeartrateAlertsComponent> ent, ref AfterStrainChangedEvent args)
     {
         UpdateAlert(ent);
     }

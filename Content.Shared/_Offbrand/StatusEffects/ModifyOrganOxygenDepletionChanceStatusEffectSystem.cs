@@ -1,5 +1,6 @@
 using Content.Shared._Offbrand.Organs;
 using Content.Shared._Offbrand.Wounds;
+using Content.Shared.FixedPoint;
 using Content.Shared.StatusEffectNew.Components;
 using Content.Shared.StatusEffectNew;
 
@@ -7,8 +8,6 @@ namespace Content.Shared._Offbrand.StatusEffects;
 
 public sealed partial class ModifyOrganOxygenDepletionChanceStatusEffectSystem : EntitySystem
 {
-    [Dependency] private PerfusionSystem _perfusion = default!;
-
     public override void Initialize()
     {
         base.Initialize();
@@ -21,7 +20,10 @@ public sealed partial class ModifyOrganOxygenDepletionChanceStatusEffectSystem :
         if (Comp<StatusEffectComponent>(ent).AppliedTo is not { } target)
             return;
 
-        var oxygenation = _perfusion.Spo2(target);
+        var oxygenation = TryComp<HeartDefibrillatableComponent>(target, out var heart) && heart.HeartBeating
+            ? FixedPoint2.New(1)
+            : FixedPoint2.Zero;
+
         if (ent.Comp.OxygenationModifierThresholds.LowestMatch(oxygenation) is not { } modifier)
             return;
 

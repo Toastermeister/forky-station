@@ -169,7 +169,7 @@
   - MobAtmosStandard
   - MobFlammable
   - BaseSpeciesMob
-  - BaseMobPerfusion # Offbrand
+
   - BaseMobBrain # Offbrand
   - BaseMobCryostasis # Offbrand
   - BaseMobLungDamage # Offbrand
@@ -236,4 +236,8 @@
   - type: FireVisuals
     alternateState: Standing
   - type: StunVisuals
+  - type: HeartDefibrillatable
+  - type: PainMetabolicRate
+    quadraticFactor: 0.00005
+    linearFactor: -0.0025
   - type: FootprintOwner # Funky change

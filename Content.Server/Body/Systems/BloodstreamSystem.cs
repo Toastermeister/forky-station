@@ -1,3 +1,5 @@
+using Content.Shared._Offbrand.Organs;
+using Content.Shared.Body;
 using Content.Shared.Body.Components;
 using Content.Shared.Body.Systems;
 using Content.Shared.Chemistry.Reagent;
@@ -7,6 +9,8 @@ namespace Content.Server.Body.Systems;
 
 public sealed class BloodstreamSystem : SharedBloodstreamSystem
 {
+    [Dependency] private readonly BodySystem _body = default!;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -35,6 +39,12 @@ public sealed class BloodstreamSystem : SharedBloodstreamSystem
         metabolitesSolution.MaxVolume = bloodSolution.MaxVolume;
         tempSolution.MaxVolume = entity.Comp.BleedPuddleThreshold * 4; // give some leeway, for chemstream as well
         entity.Comp.BloodReferenceSolution.SetReagentData(GetEntityBloodData((entity, entity.Comp)));
+
+        // Resolve blood type from this entity's Heart organ, if present
+        if (_body.TryGetOrgansWithComponent<BloodstreamProviderComponent>(entity.Owner, out var providers) && providers.Count > 0)
+        {
+            entity.Comp.BloodType = providers[0].Comp.BloodType;
+        }
 
         // Fill blood solution with BLOOD
         // The DNA string might not be initialized yet, but the reagent data gets updated in the GenerateDnaEvent subscription

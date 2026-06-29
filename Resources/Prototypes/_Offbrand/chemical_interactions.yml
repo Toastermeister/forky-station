@@ -1,0 +1,39 @@
+# Chemical interaction definitions for the metabolism system.
+# These define how pairs of reagents interact during metabolism.
+
+# Synergy: Epinephrine + Atropine = cardiac stimulant cocktail
+- type: chemicalInteraction
+  id: EpinephrineAtropineSynergy
+  reagentA: Epinephrine
+  reagentB: Atropine
+  interactionType: Synergy
+  effectModifier: 1.5
+
+# Antagonism: Ephedrine blocks Morphine sedation
+- type: chemicalInteraction
+  id: EphedrineMorphineAntagonism
+  reagentA: Ephedrine
+  reagentB: Morphine
+  interactionType: Antagonism
+  effectModifier: 0.0
+
+# Antagonism: Charcoal absorbs co-ingested reagents (handled by competitive binding)
+# This is a system-level mechanic, not a pair interaction.
+
+# Toxic Byproduct: Ethanol + Paracetamol → liver damage
+- type: chemicalInteraction
+  id: EthanolParacetamolToxic
+  reagentA: Ethanol
+  reagentB: Paracetamol
+  interactionType: ToxicByproduct
+  byproduct: ToxicMetabolite
+  byproductAmount: 0.2
+
+# Toxic Byproduct: Ethanol + Tramadol → increased asphyxiation risk
+- type: chemicalInteraction
+  id: EthanolTramadolToxic
+  reagentA: Ethanol
+  reagentB: Tramadol
+  interactionType: ToxicByproduct
+  byproduct: ToxicMetabolite
+  byproductAmount: 0.15

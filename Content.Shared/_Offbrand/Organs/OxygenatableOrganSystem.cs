@@ -13,7 +13,6 @@ namespace Content.Shared._Offbrand.Organs;
 public sealed partial class OxygenatableOrganSystem : EntitySystem
 {
     [Dependency] private IGameTiming _timing = default!;
-    [Dependency] private PerfusionSystem _perfusion = default!;
     [Dependency] private DamageableOrganSystem _damageableOrgan = default!;
 
     public override void Initialize()
@@ -154,10 +153,8 @@ public sealed partial class OxygenatableOrganSystem : EntitySystem
         Entity<OrganComponent, OxygenatableOrganComponent, OxygenatableDamageableOrganComponent,
             DamageableOrganComponent> ent)
     {
-        var oxygenation = ent.Comp1.Body is { } body
-            ? TryComp<PerfusionComponent>(body, out var perfusion)
-                ? _perfusion.Spo2((body, perfusion))
-                : 1
+        var oxygenation = ent.Comp1.Body is { } body && TryComp<HeartDefibrillatableComponent>(body, out var heart)
+            ? heart.HeartBeating ? FixedPoint2.New(1) : FixedPoint2.Zero
             : FixedPoint2.Zero;
 
         var seed = SharedRandomExtensions.HashCodeCombine((int)_timing.CurTick.Value, GetNetEntity(ent).Id);

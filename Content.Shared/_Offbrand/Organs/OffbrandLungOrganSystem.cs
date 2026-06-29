@@ -7,8 +7,6 @@ namespace Content.Shared._Offbrand.Organs;
 
 public sealed partial class OffbrandLungOrganSystem : EntitySystem
 {
-    [Dependency] private PerfusionSystem _perfusion = default!;
-
     public override void Initialize()
     {
         base.Initialize();
@@ -34,27 +32,12 @@ public sealed partial class OffbrandLungOrganSystem : EntitySystem
         var damageComp = Comp<DamageableOrganComponent>(ent);
         var damage = damageComp.Damage.Float() / damageComp.MaxDamage.Float();
         var health = 1f - damage;
-        var asphyxiationAmount = FixedPoint2.Zero;
-        // var damageable = Comp<DamageableComponent>(ent);
-        // if (!damageable.Damage.DamageDict.TryGetValue(ent.Comp.AsphyxiationDamage, out var asphyxiationAmount))
-        // {
-        //    args.Function *= health - damage;
-        //    return;
-        // }
 
-        var airSupply = Math.Clamp(1f - (asphyxiationAmount.Float() / ent.Comp.AsphyxiationThreshold.Float()), 0, 1);
-
-        args.Args = args.Args with { Function = health * airSupply };
+        args.Args = args.Args with { Function = health };
     }
 
     private void OnStethoscopeExamine(Entity<OffbrandLungOrganComponent> ent, ref StethoscopeExamineEvent args)
     {
-        var organ = Comp<OrganComponent>(ent);
-        if (organ.Body is not { } body || !TryComp<PerfusionComponent>(body, out var perfusion))
-            return;
-
-        var respiratoryRate = _perfusion.ComputeRespiratoryRateModifier((body, perfusion));
-
         var damage = Comp<DamageableOrganComponent>(ent);
 
         if (ent.Comp.StethoscopeDepthDescriptions.HighestMatch(1f - BreathVolumeModifier(ent)) is not { } volume)
@@ -63,8 +46,9 @@ public sealed partial class OffbrandLungOrganSystem : EntitySystem
         if (ent.Comp.StethoscopeRegularityDescriptions.HighestMatch(damage.Damage) is not { } regularity)
             return;
 
-        if (ent.Comp.StethoscopeSpeedDescriptions.HighestMatch(1f - respiratoryRate) is not { } speed)
-            return;
+        var speed = damage.Damage >= ent.Comp.AsphyxiationThreshold
+            ? OffbrandLungBreathingSpeed.Fastest
+            : OffbrandLungBreathingSpeed.Normal;
 
         var message = Loc.GetString(ent.Comp.StethoscopeDescription,
             ("volume", volume),

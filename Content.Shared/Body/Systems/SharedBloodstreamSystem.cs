@@ -337,6 +337,7 @@ public abstract class SharedBloodstreamSystem : EntitySystem
 
     /// <summary>
     /// Attempt to transfer a provided solution to internal solution.
+    /// Checks blood type compatibility and triggers transfusion reactions if needed.
     /// </summary>
     public bool TryAddToBloodstream(Entity<BloodstreamComponent?> ent, Solution solution)
     {
@@ -344,10 +345,76 @@ public abstract class SharedBloodstreamSystem : EntitySystem
             || !SolutionContainer.ResolveSolution(ent.Owner, ent.Comp.BloodSolutionName, ref ent.Comp.BloodSolution))
             return false;
 
+        // Check for blood transfusion compatibility
+        if (ent.Comp.BloodType != "Unknown")
+            CheckTransfusionReaction(ent, solution);
+
         if (SolutionContainer.TryAddSolution(ent.Comp.BloodSolution.Value, solution))
             return true;
 
         return false;
+    }
+
+    /// <summary>
+    /// Checks if any blood reagent in the incoming solution is incompatible with the recipient's blood type.
+    /// </summary>
+    private void CheckTransfusionReaction(Entity<BloodstreamComponent?> ent, Solution solution)
+    {
+        if (!Resolve(ent, ref ent.Comp))
+            return;
+
+        foreach (var (reagent, _) in solution.Contents)
+        {
+            var reagentId = reagent.Prototype;
+            var recipientType = ent.Comp.BloodType;
+
+            // Cross-species blood detection: if the incoming reagent doesn't match
+            // what the recipient's bloodstream expects, it's incompatible
+            var expectedReagent = GetExpectedBloodReagent(recipientType);
+            if (expectedReagent != null && reagentId != expectedReagent)
+            {
+                ApplyTransfusionReaction(ent, recipientType, reagentId);
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the expected blood reagent prototype ID for a given blood type.
+    /// </summary>
+    private ProtoId<ReagentPrototype>? GetExpectedBloodReagent(string bloodType)
+    {
+        if (bloodType.StartsWith("Human") || bloodType.StartsWith("Dwarf") || bloodType.StartsWith("Reptilian") || bloodType.StartsWith("Vulpkanin"))
+            return "Blood";
+        if (bloodType.StartsWith("Arachnid"))
+            return "CopperBlood";
+        if (bloodType.StartsWith("Vox"))
+            return "AmmoniaBlood";
+        if (bloodType.StartsWith("Moth"))
+            return "InsectBlood";
+        if (bloodType.StartsWith("Diona"))
+            return "Sap";
+        if (bloodType.StartsWith("Slime"))
+            return "Slime";
+        return null;
+    }
+
+    /// <summary>
+    /// Applies damage from a transfusion reaction (incompatible blood).
+    /// </summary>
+    private void ApplyTransfusionReaction(Entity<BloodstreamComponent?> ent, string recipientType, ProtoId<ReagentPrototype> foreignReagent)
+    {
+        // Minor reaction: Poison damage over time
+        _damageableSystem.TryChangeDamage(ent.Owner, new DamageSpecifier()
+        {
+            DamageDict = new()
+            {
+                { "Poison", FixedPoint2.New(5) },
+                { "Caustic", FixedPoint2.New(2) },
+            },
+        }, ignoreResistances: false, interruptsDoAfters: false);
+
+        _popup.PopupEntity(Loc.GetString("bloodstream-transfusion-reaction"), ent.Owner, ent.Owner, PopupType.MediumCaution);
     }
 
     /// <summary>

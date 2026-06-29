@@ -18,6 +18,8 @@
         - !type:ReagentCondition
           reagent: Oxycodone
           max: 1
+        - !type:MetabolizerTypeCondition
+          type: [Human, Dwarf]
       - statusEffect: StatusEffectPainkillersMildParacetamolOverdose
         conditions:
         - !type:ReagentCondition
@@ -46,6 +48,9 @@
       metabolismRate: 0.05
       statusEffects:
       - statusEffect: StatusEffectPainkillersTramadol
+        conditions:
+        - !type:MetabolizerTypeCondition
+          type: [Human, Dwarf]
       - statusEffect: StatusEffectPainkillersTramadolOverdose
         conditions:
         - !type:ReagentCondition
@@ -96,6 +101,9 @@
       metabolismRate: 0.15
       statusEffects:
       - statusEffect: StatusEffectPainkillersStrongOxycodone
+        conditions:
+        - !type:MetabolizerTypeCondition
+          type: [Human, Dwarf]
       - statusEffect: StatusEffectPainkillersStrongOxycodoneOverdose
         conditions:
         - !type:ReagentCondition
@@ -305,6 +313,23 @@
       - !type:RemoveStatusEffect
         effectProto: WoundArterialBleeding
         probability: 0.2
+
+- type: reagent
+  id: ToxicMetabolite
+  name: reagent-name-toxic-metabolite
+  group: Toxin
+  desc: reagent-desc-toxic-metabolite
+  physicalDesc: reagent-physical-desc-acrid
+  flavor: acrid
+  color: "#5a2e0e"
+  metabolisms:
+    Bloodstream:
+      metabolismRate: 0.2
+      effects:
+      - !type:HealthChange
+        damage:
+          types:
+            Poison: 1.0
 
 - type: reagent
   id: Osseous

@@ -245,6 +245,10 @@
 - type: entity
   parent: [ OrganBaseHeart, OrganArachnidInternal, OrganArachnidMetabolizer ]
   id: OrganArachnidHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Arachnid-Hα+"
+    bloodReagent: CopperBlood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganArachnidInternal, OrganAnimalMetabolizer ]

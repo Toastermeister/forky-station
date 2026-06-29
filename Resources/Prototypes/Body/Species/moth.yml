@@ -303,6 +303,10 @@
 - type: entity
   parent: [ OrganBaseHeart, OrganMothInternal, OrganAnimalMetabolizer ]
   id: OrganMothHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Moth-HemoA"
+    bloodReagent: InsectBlood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganMothInternal, OrganMothMetabolizer ]

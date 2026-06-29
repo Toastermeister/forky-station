@@ -205,6 +205,10 @@
 - type: entity
   parent: [ OrganBaseHeart, OrganHumanInternal, OrganHumanMetabolizer ]
   id: OrganHumanHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Human-AB+"
+    bloodReagent: Blood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganHumanInternal, OrganHumanMetabolizer ]

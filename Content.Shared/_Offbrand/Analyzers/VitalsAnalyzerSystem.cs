@@ -1,3 +1,4 @@
+using Content.Shared._Offbrand.Organs;
 using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Body;
 using Content.Shared.Body.Components;
@@ -12,7 +13,6 @@ namespace Content.Shared._Offbrand.Analyzers;
 
 public sealed partial class VitalsAnalyzerSystem : EntitySystem
 {
-    [Dependency] private PerfusionSystem _perfusion = default!;
     [Dependency] private BodySystem _body = default!;
     [Dependency] private SharedSolutionContainerSystem _solutionContainer = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
@@ -97,13 +97,14 @@ public sealed partial class VitalsAnalyzerSystem : EntitySystem
 
     public VitalsData? TakeSample(EntityUid uid, bool withWounds = true)
     {
-        if (!TryComp<PerfusionComponent>(uid, out var heartrate))
+        if (!TryComp<HeartDefibrillatableComponent>(uid, out var heart))
             return null;
 
         if (!TryComp<BrainDamageThresholdsComponent>(uid, out var brainDamageThresholds))
             return null;
 
-        var (upper, lower) = _perfusion.BloodPressure((uid, heartrate));
+        var upper = heart.HeartBeating ? 120 : 0;
+        var lower = heart.HeartBeating ? 80 : 0;
 
         var hasNonMedical = false;
         var reagents = withWounds ? SampleReagents(uid, out hasNonMedical) : null;
@@ -112,16 +113,16 @@ public sealed partial class VitalsAnalyzerSystem : EntitySystem
             {
                 BrainHealth = 1f - brainDamageThresholds.DisplayDamage.Float() / brainDamageThresholds.DisplayMaxDamage.Float(),
                 BloodPressure = (upper, lower),
-                HeartRate = _perfusion.HeartRate((uid, heartrate)),
-                HeartStrain = heartrate.Strain,
-                Etco2 = _perfusion.Etco2((uid, heartrate)),
-                RespiratoryRate = _perfusion.RespiratoryRate((uid, heartrate)),
-                RespiratoryRateModifier = _perfusion.ComputeRespiratoryRateModifier((uid, heartrate)),
-                Spo2 = _perfusion.Spo2((uid, heartrate)).Float(),
-                Etco2Name = heartrate.Etco2Name,
-                Etco2GasName = heartrate.Etco2GasName,
-                Spo2Name = heartrate.Spo2Name,
-                Spo2GasName = heartrate.Spo2GasName,
+                HeartRate = heart.HeartBeating ? 70 : 0,
+                HeartStrain = heart.HeartBeating ? 0f : 1f,
+                Etco2 = 0,
+                RespiratoryRate = 12,
+                RespiratoryRateModifier = 1f,
+                Spo2 = heart.HeartBeating ? 1f : 0f,
+                Etco2Name = "offbrand-vitals-etco2-label",
+                Etco2GasName = "offbrand-vitals-etco2-gas-name",
+                Spo2Name = "offbrand-vitals-spo2-label",
+                Spo2GasName = "offbrand-vitals-spo2-gas-name",
                 Reagents = reagents,
                 NonMedicalReagents = hasNonMedical,
                 BloodLevel = _bloodstream.GetBloodLevel(uid),

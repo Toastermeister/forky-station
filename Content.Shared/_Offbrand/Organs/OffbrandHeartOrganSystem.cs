@@ -1,20 +1,19 @@
 using Content.Shared._Offbrand.Medical;
-using Content.Shared._Offbrand.StatusEffects;
 using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Body;
 using Content.Shared.Medical;
-using Content.Shared.Random.Helpers;
 using Content.Shared.Rejuvenate;
 using Content.Shared.StatusEffectNew;
-using Robust.Shared.Random;
-using Robust.Shared.Timing;
 
 namespace Content.Shared._Offbrand.Organs;
 
+/// <summary>
+/// Simplified heart system. Heart state is binary (beating/stopped).
+/// The heart beats as long as organ damage is below max. It stops at max damage.
+/// </summary>
 public sealed partial class OffbrandHeartOrganSystem : EntitySystem
 {
     [Dependency] private DamageableOrganSystem _damageable = default!;
-    [Dependency] private IGameTiming _timing = default!;
     [Dependency] private StatusEffectsSystem _statusEffects = default!;
 
     public override void Initialize()
@@ -23,14 +22,10 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
 
         SubscribeLocalEvent<OffbrandHeartOrganComponent, OrganGotInsertedEvent>(OnOrganGotInserted);
         SubscribeLocalEvent<OffbrandHeartOrganComponent, OrganGotRemovedEvent>(OnOrganGotRemoved);
-        SubscribeLocalEvent<OffbrandHeartOrganComponent, BodyRelayedEvent<HeartBeatEvent>>(OnHeartBeat);
-        SubscribeLocalEvent<OffbrandHeartOrganComponent, BodyRelayedEvent<BaseCardiacOutputEvent>>(OnBaseCardiacOutput);
-        SubscribeLocalEvent<OffbrandHeartOrganComponent, BodyRelayedEvent<CardiacCompensationEvent>>(OnCardiacCompensation);
-        SubscribeLocalEvent<OffbrandHeartOrganComponent, BodyRelayedEvent<RejuvenateEvent>>(OnRejuvenate);
         SubscribeLocalEvent<OffbrandHeartOrganComponent, OrganDamageChangedEvent>(OnOrganDamageChanged);
-        SubscribeLocalEvent<HeartStopOnHighStrainComponent, PotentialHeartStopEvent>(OnHeartBeatStrain);
-        SubscribeLocalEvent<HeartDefibrillatableComponent, BodyRelayedEvent<TargetDefibrillatedEvent>>(OnTargetDefibrillated);
+        SubscribeLocalEvent<OffbrandHeartOrganComponent, BodyRelayedEvent<RejuvenateEvent>>(OnRejuvenate);
         SubscribeLocalEvent<OffbrandHeartOrganComponent, StethoscopeExamineEvent>(OnStethoscopeExamine);
+        SubscribeLocalEvent<HeartDefibrillatableComponent, BodyRelayedEvent<TargetDefibrillatedEvent>>(OnTargetDefibrillated);
     }
 
     private void OnStethoscopeExamine(Entity<OffbrandHeartOrganComponent> ent, ref StethoscopeExamineEvent args)
@@ -38,12 +33,13 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
         if (!ent.Comp.Beating)
             return;
 
-        if (ent.Comp.StethoscopeStrainThresholds.HighestMatch(Strain(ent)) is not { } message)
-            return;
-
         var damage = Comp<DamageableOrganComponent>(ent);
 
-        args.Messages.Add(Loc.GetString(message, ("damaged", damage.Damage >= ent.Comp.StethoscopeDamagedAbove)));
+        var message = damage.Damage >= ent.Comp.StethoscopeDamagedAbove
+            ? "heart-stethoscope-damaged"
+            : "heart-stethoscope-healthy";
+
+        args.Messages.Add(Loc.GetString(message));
     }
 
     private void OnOrganGotInserted(Entity<OffbrandHeartOrganComponent> ent, ref OrganGotInsertedEvent args)
@@ -83,72 +79,6 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
         StartHeart(ent);
     }
 
-    private float Strain(Entity<OffbrandHeartOrganComponent> ent)
-    {
-        return Math.Max(ent.Comp.CompensationStrainCoefficient * ent.Comp.Compensation + ent.Comp.CompensationStrainConstant, 0f);
-    }
-
-    private void OnHeartBeat(Entity<OffbrandHeartOrganComponent> ent, ref BodyRelayedEvent<HeartBeatEvent> args)
-    {
-        var stop = new PotentialHeartStopEvent(args.Body, false);
-        RaiseLocalEvent(ent, ref stop);
-
-        if (stop.Stop)
-        {
-            StopHeart(ent);
-            return;
-        }
-
-        var threshold = ent.Comp.StrainDamageThresholds.HighestMatch(Strain(ent));
-        if (threshold is (var chance, var amount))
-        {
-            var seed = SharedRandomExtensions.HashCodeCombine((int)_timing.CurTick.Value, GetNetEntity(ent).Id);
-            var rand = new System.Random(seed);
-
-            if (rand.Prob(chance))
-                _damageable.ChangeDamage(ent.Owner, amount);
-        }
-    }
-
-    private void OnBaseCardiacOutput(Entity<OffbrandHeartOrganComponent> ent, ref BodyRelayedEvent<BaseCardiacOutputEvent> args)
-    {
-        var damage = Comp<DamageableOrganComponent>(ent);
-
-        args.Args = args.Args with
-        {
-            Output = !ent.Comp.Beating ? null : 1f - (damage.Damage.Float() / damage.MaxDamage.Float()),
-        };
-    }
-
-    private void OnCardiacCompensation(Entity<OffbrandHeartOrganComponent> ent,
-        ref BodyRelayedEvent<CardiacCompensationEvent> args)
-    {
-        var damage = Comp<DamageableOrganComponent>(ent);
-        var invert = MathF.Log(args.Args.Demand / args.Args.Supply);
-        if (!float.IsFinite(invert))
-            throw new InvalidOperationException($"demand/supply {args.Args.Demand}/{args.Args.Supply} is not finite: {invert}");
-
-        var targetCompensation = ent.Comp.CompensationCoefficient * invert + ent.Comp.CompensationConstant;
-        var healthFactor = !ent.Comp.Running ? 0f : 1f - (damage.Damage.Float() / damage.MaxDamage.Float());
-
-        ent.Comp.Compensation = Math.Max(targetCompensation, 1f);
-        args.Args = args.Args with { Compensation = ent.Comp.Compensation * healthFactor, Strain = Strain(ent) };
-
-        Dirty(ent);
-    }
-
-    private void OnHeartBeatStrain(Entity<HeartStopOnHighStrainComponent> ent, ref PotentialHeartStopEvent args)
-    {
-        var seed = SharedRandomExtensions.HashCodeCombine((int)_timing.CurTick.Value, GetNetEntity(ent).Id);
-        var rand = new System.Random(seed);
-
-        if (_statusEffects.HasEffectComp<PreventHeartStopFromStrainStatusEffectComponent>(args.Body))
-            return;
-
-        var strain = Strain((ent, Comp<OffbrandHeartOrganComponent>(ent)));
-        args.Stop = args.Stop || rand.Prob(ent.Comp.Chance) && strain > ent.Comp.Threshold;
-    }
-
     private void StopHeart(Entity<OffbrandHeartOrganComponent> ent)
     {
         ent.Comp.Beating = false;
@@ -156,6 +86,12 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
 
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
+
+        if (TryComp<HeartDefibrillatableComponent>(body, out var defib))
+        {
+            defib.HeartBeating = false;
+            Dirty(body, defib);
+        }
 
         var stoppedEvt = new HeartStoppedEvent();
         RaiseLocalEvent(body, ref stoppedEvt);
@@ -179,6 +115,12 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
 
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
+
+        if (TryComp<HeartDefibrillatableComponent>(body, out var defib))
+        {
+            defib.HeartBeating = true;
+            Dirty(body, defib);
+        }
 
         var evt = new HeartStartedEvent();
         RaiseLocalEvent(body, ref evt);

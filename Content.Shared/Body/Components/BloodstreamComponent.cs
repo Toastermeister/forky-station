@@ -154,6 +154,13 @@ public sealed partial class BloodstreamComponent : Component
     public Solution BloodReferenceSolution = new([new("Blood", 300)]);
 
     /// <summary>
+    /// The blood type string for this entity (e.g. "Human-O+", "Arachnid-Hα-").
+    /// Inferred from the Heart organ's BloodstreamProviderComponent on init.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public string BloodType = "Unknown";
+
+    /// <summary>
     /// Caches the blood data of an entity.
     /// This is modified by DNA on init so it's not savable.
     /// </summary>

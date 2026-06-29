@@ -68,6 +68,7 @@
       FootLeft: OrganSlimePersonFootLeft
       FootRight: OrganSlimePersonFootRight
       Brain: OrganSlimePersonCore
+      Heart: OrganSlimePersonHeart
       Lungs: OrganSlimePersonLungs
   - type: HumanoidProfile
     species: SlimePerson
@@ -263,6 +264,15 @@
     maxReagents: 6
     metabolizerTypes: [ Slime ]
     stages: [ Digestion, Bloodstream, Metabolites ]
+
+- type: entity
+  parent: [ OrganBaseHeart, OrganSlimePersonInternal, OrganSlimePersonMetabolizer ]
+  id: OrganSlimePersonHeart
+  name: slime heart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Slime-SlimeO"
+    bloodReagent: Slime
 
 - type: entity
   parent: [ OrganBaseLungs, OrganSlimePersonInternal, OrganSlimePersonMetabolizer ]

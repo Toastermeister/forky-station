@@ -91,32 +91,7 @@
     messageThresholds:
       120: DefaultPainslump
 
-- type: entity
-  abstract: true
-  id: BaseMobPerfusion
-  components:
-  - type: Perfusion
-    respiratoryRateCoefficient: -3
-    respiratoryRateConstant: 1.333
-    respiratoryRateNormalBreath: 5
-    bloodPressureDeviation: 5
-    systolicBase: 120
-    diastolicBase: 80
-    heartRateDeviation: 15
-    heartRateFullPerfusion: 75
-    heartRateNoPerfusion: 200
-    etco2Base: 40
-    etco2Deviation: 4
-    etco2Name: etco2-carbon-dioxide
-    etco2GasName: reagent-name-carbon-dioxide
-    spo2Name: spo2-oxygen
-    spo2GasName: reagent-name-oxygen
-    # TODO: heartstop
-    # heartStoppedEffect: StatusEffectHeartStopped
-  - type: HeartDefibrillatable
-  - type: PainMetabolicRate
-    quadraticFactor: 0.00005
-    linearFactor: -0.0025
+
     constantFactor: 0
   - type: HeartrateAlerts
     strainAlert: HeartRate

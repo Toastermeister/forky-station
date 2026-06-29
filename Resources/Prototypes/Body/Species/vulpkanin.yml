@@ -311,6 +311,10 @@
 - type: entity
   parent: [ OrganBaseHeart, OrganVulpkaninInternal, OrganVulpkaninMetabolizer ]
   id: OrganVulpkaninHeart
+  components:
+  - type: BloodstreamProvider
+    bloodType: "Vulpkanin-A+"
+    bloodReagent: Blood
 
 - type: entity
   parent: [ OrganBaseStomach, OrganVulpkaninInternal, OrganVulpkaninMetabolizer ]

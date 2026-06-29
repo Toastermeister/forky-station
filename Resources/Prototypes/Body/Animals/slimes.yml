@@ -8,4 +8,5 @@
       body_organs: !type:AllSelector
         children:
         - id: OrganSlimePersonCore
+        - id: OrganSlimePersonHeart
         - id: OrganSlimePersonLungs

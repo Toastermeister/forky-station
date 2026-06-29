@@ -4,86 +4,41 @@ using Robust.Shared.GameStates;
 
 namespace Content.Shared._Offbrand.Organs;
 
+/// <summary>
+/// Simplified heart organ. Binary beating/stopped state driven by organ health.
+/// The heart beats as long as organ damage is below MaxDamage.
+/// </summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 [Access(typeof(OffbrandHeartOrganSystem))]
 public sealed partial class OffbrandHeartOrganComponent : Component
 {
-    [DataField, AutoNetworkedField]
-    public float Compensation = 1f;
-
-    [DataField(required: true)]
-    public float CompensationCoefficient;
-
-    [DataField(required: true)]
-    public float CompensationConstant;
-
-    [DataField(required: true)]
-    public float CompensationStrainCoefficient;
-
-    [DataField(required: true)]
-    public float CompensationStrainConstant;
-
     /// <summary>
-    /// How much damage to inflict on the heart depending on strain.
-    /// - Chance: the chance to inflict damage
-    /// - Amount: how much damage to inflict
-    /// The highest amount is chosen.
+    /// Whether the heart is currently beating.
     /// </summary>
-    [DataField(required: true)]
-    public SortedDictionary<FixedPoint2, (double Chance, FixedPoint2 Amount)> StrainDamageThresholds;
+    [DataField, AutoNetworkedField]
+    public bool Beating = true;
 
     /// <summary>
-    /// The stethoscope sound is considered to be damaged above this threshold.
+    /// The stethoscope sound is considered to be damaged above this damage threshold.
     /// </summary>
     [DataField(required: true)]
     public FixedPoint2 StethoscopeDamagedAbove;
-
-    /// <summary>
-    /// The strain thresholds for the stethoscope message.
-    /// </summary>
-    [DataField(required: true)]
-    public SortedDictionary<FixedPoint2, LocId> StethoscopeStrainThresholds;
-
-    [DataField, AutoNetworkedField]
-    public bool Beating = true;
 }
 
-[RegisterComponent]
-[Access(typeof(OffbrandHeartOrganSystem))]
-public sealed partial class HeartStopOnHighStrainComponent : Component
-{
-    /// <summary>
-    /// How likely the heart is to stop when the strain threshold is exceeded
-    /// </summary>
-    [DataField(required: true)]
-    public float Chance;
-
-    /// <summary>
-    /// The minimum threshold at which the heart can stop from strain
-    /// </summary>
-    [DataField(required: true)]
-    public FixedPoint2 Threshold;
-
-    /// <summary>
-    /// The warning issued by defibrillators if the heart is restarted with high strain
-    /// </summary>
-    [DataField]
-    public LocId Warning = "heart-defibrillatable-target-strain";
-}
-
-[RegisterComponent]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 [Access(typeof(OffbrandHeartOrganSystem))]
 public sealed partial class HeartDefibrillatableComponent : Component
 {
     [DataField]
     public LocId TargetIsDead = "heart-defibrillatable-target-is-dead";
-}
 
-/// <summary>
-/// Raised on an organ during a heartbeat
-/// </summary>
-[ByRefEvent]
-public record struct PotentialHeartStopEvent(Entity<BodyComponent> Body, bool Stop);
+    /// <summary>
+    /// Whether the entity's heart is currently beating.
+    /// Updated by OffbrandHeartOrganSystem when heart starts/stops.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public bool HeartBeating = true;
+}
 
 /// <summary>
 /// Raised on an entity if the heart has stopped beating
@@ -98,7 +53,7 @@ public record struct HeartStoppedEvent;
 public record struct HeartStartedEvent;
 
 /// <summary>
-/// Raised on an entity to see if the defibrillator will say anything before defibrillation
+/// Raised on an entity to see what the defibrillator will say before defibrillation
 /// </summary>
 [ByRefEvent]
 public record struct BeforeTargetDefibrillatedEvent(List<LocId> Messages);

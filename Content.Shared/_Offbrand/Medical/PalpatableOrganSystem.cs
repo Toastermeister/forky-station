@@ -1,3 +1,4 @@
+using Content.Shared._Offbrand.Organs;
 using Content.Shared._Offbrand.Skeletons;
 using Content.Shared._Offbrand.Wounds;
 using Content.Shared.Body;
@@ -97,13 +98,15 @@ public sealed partial class PalpatableOrganSystem : EntitySystem
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        if (!TryComp<PerfusionComponent>(body, out var perfusion))
+        if (!TryComp<HeartDefibrillatableComponent>(body, out var heart))
             return;
 
-        if (ent.Comp.PulseQualities.HighestMatch(perfusion.Perfusion) is not { } quality)
+        var perf = heart.HeartBeating ? 1f : 0f;
+
+        if (ent.Comp.PulseQualities.HighestMatch(perf) is not { } quality)
             return;
 
-        if (ent.Comp.PulseSpeeds.HighestMatch(perfusion.Strain) is not { } speeds)
+        if (ent.Comp.PulseSpeeds.HighestMatch(1f - perf) is not { } speeds)
             return;
 
         args.Messages.Add(Loc.GetString(speeds, ("quality", quality)));

@@ -1,6 +1,6 @@
 using System.Numerics;
 using Content.Client.StatusIcon;
-using Content.Shared._Offbrand.Wounds;
+using Content.Shared._Offbrand.Organs;
 using Content.Shared.StatusIcon.Components;
 using Content.Shared.StatusIcon;
 using Robust.Client.GameObjects;
@@ -18,7 +18,6 @@ public sealed partial class HeartrateOverlay : Overlay
     [Dependency] private IGameTiming _timing = default!;
     [Dependency] private IPrototypeManager _prototype = default!;
 
-    private readonly PerfusionSystem _perfusion;
     private readonly SharedTransformSystem _transform;
     private readonly SpriteSystem _sprite;
     private readonly StatusIconSystem _statusIcon;
@@ -29,11 +28,6 @@ public sealed partial class HeartrateOverlay : Overlay
 
     private static readonly SpriteSpecifier HudStopped = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_stopped");
     private static readonly SpriteSpecifier HudGood = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_normal");
-    private static readonly SpriteSpecifier HudOkay = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_okay");
-    private static readonly SpriteSpecifier HudPoor = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_poor");
-    private static readonly SpriteSpecifier HudBad = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_bad");
-    private static readonly SpriteSpecifier HudDanger = new SpriteSpecifier.Rsi(new("/Textures/_Offbrand/heart_rate_hud.rsi"), "hud_danger");
-    private static readonly IReadOnlyList<SpriteSpecifier> Severities = new List<SpriteSpecifier>() { HudGood, HudOkay, HudPoor, HudBad, HudDanger };
 
     public HeartrateOverlay()
     {
@@ -42,17 +36,11 @@ public sealed partial class HeartrateOverlay : Overlay
         _transform = _entityManager.System<SharedTransformSystem>();
         _sprite = _entityManager.System<SpriteSystem>();
         _statusIcon = _entityManager.System<StatusIconSystem>();
-        _perfusion = _entityManager.System<PerfusionSystem>();
     }
 
-    private SpriteSpecifier GetIcon(Entity<PerfusionComponent> ent)
+    private SpriteSpecifier GetIcon(HeartDefibrillatableComponent heart)
     {
-        if (ent.Comp.BaseCardiacOutput is null)
-            return HudStopped;
-
-        var max = 4;
-        var severity = Math.Min((int)Math.Round(max * ent.Comp.Strain), max);
-        return Severities[severity];
+        return heart.HeartBeating ? HudGood : HudStopped;
     }
 
     protected override void Draw(in OverlayDrawArgs args)
@@ -66,11 +54,11 @@ public sealed partial class HeartrateOverlay : Overlay
 
         _prototype.TryIndex(StatusIcon, out var statusIcon);
 
-        var query = _entityManager.AllEntityQueryEnumerator<MetaDataComponent, TransformComponent, PerfusionComponent, SpriteComponent>();
+        var query = _entityManager.AllEntityQueryEnumerator<MetaDataComponent, TransformComponent, HeartDefibrillatableComponent, SpriteComponent>();
         while (query.MoveNext(out var uid,
             out var metadata,
             out var xform,
-            out var heartrate,
+            out var heart,
             out var sprite))
         {
             if (statusIcon != null && !_statusIcon.IsVisible((uid, metadata), statusIcon))
@@ -91,7 +79,7 @@ public sealed partial class HeartrateOverlay : Overlay
             handle.SetTransform(matty);
 
             var curTime = _timing.RealTime;
-            var texture = _sprite.GetFrame(GetIcon((uid, heartrate)), curTime);
+            var texture = _sprite.GetFrame(GetIcon(heart), curTime);
 
             handle.DrawTexture(texture, new Vector2(-8f, 8f) / EyeManager.PixelsPerMeter);
         }

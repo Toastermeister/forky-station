@@ -1,3 +1,4 @@
+using Content.Shared._Offbrand.Organs;
 using Content.Shared.DoAfter;
 using Content.Shared.Examine;
 using Content.Shared.IdentityManagement;
@@ -71,7 +72,7 @@ public sealed partial class CprSystem : EntitySystem
             // }
         }
 
-        args.Repeat = TryComp<PerfusionComponent>(ent, out var perfusion) && perfusion.BaseCardiacOutput < 1;
+        args.Repeat = TryComp<HeartDefibrillatableComponent>(ent, out var heart) && !heart.HeartBeating;
     }
 
     private void OnGetVerbs(Entity<CprTargetComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
@@ -79,7 +80,7 @@ public sealed partial class CprSystem : EntitySystem
         if (!args.CanAccess || !args.CanInteract || ent.Owner == args.User)
             return;
 
-        if (!TryComp<PerfusionComponent>(ent, out var perfusion) || perfusion.BaseCardiacOutput >= 1)
+        if (!TryComp<HeartDefibrillatableComponent>(ent, out var heart) || heart.HeartBeating)
             return;
 
         var @event = args;
@@ -95,7 +96,7 @@ public sealed partial class CprSystem : EntitySystem
 
     private void OnExamined(Entity<CprTargetComponent> ent, ref ExaminedEvent args)
     {
-        if (!TryComp<PerfusionComponent>(ent, out var perfusion) || perfusion.BaseCardiacOutput >= 1)
+        if (!TryComp<HeartDefibrillatableComponent>(ent, out var heart) || heart.HeartBeating)
             return;
 
         if (_mobState.IsDead(ent))
