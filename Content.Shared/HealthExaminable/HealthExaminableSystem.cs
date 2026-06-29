@@ -1,3 +1,4 @@
+using Content.Shared.Body;
 using Content.Shared.Damage.Components;
 using Content.Shared.Examine;
 using Content.Shared.FixedPoint;
@@ -30,7 +31,7 @@ public sealed class HealthExaminableSystem : EntitySystem
             Act = () =>
             {
                 var markup = CreateMarkup(uid, component, damage);
-                _examineSystem.SendExamineTooltip(args.User, uid, markup, false, false);
+                _examineSystem.SendExamineTooltip(args.User, uid, markup, false, false, true); // Offbrand
             },
             Text = Loc.GetString("health-examinable-verb-text"),
             Category = VerbCategory.Examine,
@@ -88,13 +89,13 @@ public sealed class HealthExaminableSystem : EntitySystem
             msg.AddMarkupOrThrow(chosenLocStr);
         }
 
-        if (msg.IsEmpty)
+        // Anything else want to add on to this?
+        RaiseLocalEvent(uid, new HealthBeingExaminedEvent(msg), true);
+
+        if (msg.IsEmpty && !HasComp<BodyComponent>(uid))
         {
             msg.AddMarkupOrThrow(Loc.GetString($"health-examinable-{component.LocPrefix}-none"));
         }
-
-        // Anything else want to add on to this?
-        RaiseLocalEvent(uid, new HealthBeingExaminedEvent(msg), true);
 
         return msg;
     }

@@ -10,6 +10,7 @@ using Content.Shared.Popups;
 using Content.Shared.StatusEffectNew;
 using Content.Shared.StatusEffectNew.Components;
 using Robust.Shared.Utility;
+using Content.Shared.HealthExaminable;
 
 namespace Content.Shared._Offbrand.Medical;
 
@@ -33,6 +34,7 @@ public sealed partial class PalpatableOrganSystem : EntitySystem
 
         SubscribeLocalEvent<PalpatableOrganComponent, ActivateInWorldEvent>(OnActivateInWorld);
         SubscribeLocalEvent<PalpatableOrganComponent, PalpationDoAfterEvent>(OnDoAfter);
+        SubscribeLocalEvent<PalpatableOrganComponent, ExaminedEvent>(OnExamined);
     }
 
     private void OnActivateInWorld(Entity<PalpatableOrganComponent> ent, ref ActivateInWorldEvent args)
@@ -64,6 +66,24 @@ public sealed partial class PalpatableOrganSystem : EntitySystem
     private void AddDescription(Entity<PalpationDescriptionComponent> ent, EntityUid organ, ref PalpationEvent args)
     {
         args.Messages.Add(Loc.GetString(ent.Comp.Description, ("organ", organ)));
+    }
+
+    private void OnExamined(Entity<PalpatableOrganComponent> ent, ref ExaminedEvent args)
+    {
+        if (Comp<OrganComponent>(ent).Body is not { } body)
+            return;
+
+        if (!TryComp<PerfusionComponent>(body, out var perfusion))
+            return;
+
+        if (ent.Comp.PulseQualities.HighestMatch(perfusion.Perfusion) is not { } quality)
+            return;
+
+        if (ent.Comp.PulseSpeeds.HighestMatch(perfusion.Strain) is not { } speeds)
+            return;
+
+        var pulseMsg = Loc.GetString(speeds, ("quality", quality));
+        args.PushMarkup(pulseMsg);
     }
 
     private void OnDoAfter(Entity<PalpatableOrganComponent> ent, ref PalpationDoAfterEvent args)

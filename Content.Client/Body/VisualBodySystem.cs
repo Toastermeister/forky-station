@@ -1,4 +1,6 @@
 using System.Linq;
+using Content.Client._Offbrand.BodyVisuals; // Offbrand
+using Content.Client.DisplacementMap;
 using Content.Shared.Body;
 using Content.Shared.CCVar;
 using Content.Shared.Humanoid.Markings;
@@ -11,12 +13,14 @@ using Robust.Shared.Utility;
 
 namespace Content.Client.Body;
 
-public sealed class VisualBodySystem : SharedVisualBodySystem
+public sealed partial class VisualBodySystem : SharedVisualBodySystem
 {
-    [Dependency] private readonly IConfigurationManager _cfg = default!;
-    [Dependency] private readonly IPrototypeManager _prototype = default!;
-    [Dependency] private readonly MarkingManager _marking = default!;
-    [Dependency] private readonly SpriteSystem _sprite = default!;
+    [Dependency] private IConfigurationManager _cfg = default!;
+    [Dependency] private IPrototypeManager _prototype = default!;
+    [Dependency] private DisplacementMapSystem _displacement = default!;
+    [Dependency] private MarkingManager _marking = default!;
+    [Dependency] private SpriteSystem _sprite = default!;
+    [Dependency] private BodyAppearanceRelaySystem _relay = default!; // Offbrand
 
     public override void Initialize()
     {
@@ -32,6 +36,13 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
 
         SubscribeLocalEvent<VisualOrganMarkingsComponent, BodyRelayedEvent<HumanoidLayerVisibilityChangedEvent>>(OnMarkingsChangedVisibility);
 
+        // Begin Offbrand
+        SubscribeLocalEvent<VisualOrganComponent, BodyRelayedEvent<BodyAppearanceRelayTargetAddedEvent>>(OnVisualRelayTargetAdded);
+        SubscribeLocalEvent<VisualOrganComponent, BodyRelayedEvent<BodyAppearanceRelayTargetRemovedEvent>>(OnVisualRelayTargetRemoved);
+        SubscribeLocalEvent<VisualOrganMarkingsComponent, BodyRelayedEvent<BodyAppearanceRelayTargetAddedEvent>>(OnMarkingsRelayTargetAdded);
+        SubscribeLocalEvent<VisualOrganMarkingsComponent, BodyRelayedEvent<BodyAppearanceRelayTargetRemovedEvent>>(OnMarkingsRelayTargetRemoved);
+        // End Offbrand
+
         Subs.CVar(_cfg, CCVars.AccessibilityClientCensorNudity, OnCensorshipChanged, true);
         Subs.CVar(_cfg, CCVars.AccessibilityServerCensorNudity, OnCensorshipChanged, true);
     }
@@ -41,39 +52,91 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
         var query = AllEntityQuery<OrganComponent, VisualOrganMarkingsComponent>();
         while (query.MoveNext(out var ent, out var organComp, out var markingsComp))
         {
+            // Begin Offbrand
+            RemoveOrganMarkings((ent, markingsComp));
+            ApplyOrganMarkings((ent, markingsComp));
+            // End Offbrand
+
             if (organComp.Body is not { } body)
                 continue;
 
-            RemoveMarkings((ent, markingsComp), body);
-            ApplyMarkings((ent, markingsComp), body);
+            // Begin Offbrand
+            foreach (var target in _relay.GetTargets(body))
+            {
+                RemoveMarkings((ent, markingsComp), target);
+                ApplyMarkings((ent, markingsComp), target);
+            }
+            // End Offbrand
         }
     }
 
     private void OnOrganGotInserted(Entity<VisualOrganComponent> ent, ref OrganGotInsertedEvent args)
     {
-        ApplyVisual(ent, args.Target);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(args.Target))
+        {
+            ApplyVisual(ent.AsNullable(), target);
+        }
+        // End Offbrand
     }
 
     private void OnOrganGotRemoved(Entity<VisualOrganComponent> ent, ref OrganGotRemovedEvent args)
     {
-        RemoveVisual(ent, args.Target);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(args.Target))
+        {
+            RemoveVisual(ent, target);
+        }
+        // End Offbrand
     }
 
     private void OnOrganState(Entity<VisualOrganComponent> ent, ref AfterAutoHandleStateEvent args)
     {
+        ApplyOrganVisual(ent); // Offbrand
+
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        ApplyVisual(ent, body);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(body))
+        {
+            ApplyVisual(ent.AsNullable(), target);
+        }
+        // End Offbrand
     }
 
-    public void ApplyVisual(Entity<VisualOrganComponent> ent, EntityUid target)
+    // Begin Offbrand
+    public void ApplyVisual(Entity<VisualOrganComponent?> ent, EntityUid target)
     {
+        if (!Resolve(ent, ref ent.Comp, false))
+            return;
+    // End Offbrand
+
         if (!_sprite.LayerMapTryGet(target, ent.Comp.Layer, out var index, true))
             return;
 
         _sprite.LayerSetData(target, index, ent.Comp.Data);
     }
+
+    // Begin Offbrand
+    private void ApplyOrganVisual(Entity<VisualOrganComponent> ent)
+    {
+        if (!TryComp<SpriteComponent>(ent, out var sprite))
+            return;
+
+        var target = new Entity<SpriteComponent?>(ent.Owner, sprite);
+        if (_sprite.LayerMapTryGet(target, ent.Comp.Layer, out var index, false))
+        {
+            _sprite.LayerSetData(target, index, ent.Comp.Data);
+            return;
+        }
+
+        if (sprite.AllLayers.Count() != 1)
+            return;
+
+        _sprite.LayerSetData(target, 0, ent.Comp.Data);
+    }
+    // End Offbrand
 
     private void RemoveVisual(Entity<VisualOrganComponent> ent, EntityUid target)
     {
@@ -85,52 +148,97 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
 
     private void OnMarkingsGotInserted(Entity<VisualOrganMarkingsComponent> ent, ref OrganGotInsertedEvent args)
     {
-        ApplyMarkings(ent, args.Target);
+        // Begin Offbrand
+        ApplyOrganMarkings(ent);
+        foreach (var target in _relay.GetTargets(args.Target))
+        {
+            ApplyMarkings(ent, target);
+        }
+        // End Offbrand
     }
 
     private void OnMarkingsGotRemoved(Entity<VisualOrganMarkingsComponent> ent, ref OrganGotRemovedEvent args)
     {
-        RemoveMarkings(ent, args.Target);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(args.Target))
+        {
+            RemoveMarkings(ent, target);
+        }
+        // End Offbrand
     }
 
     private void OnMarkingsState(Entity<VisualOrganMarkingsComponent> ent, ref AfterAutoHandleStateEvent args)
     {
+        // Begin Offbrand
+        RemoveOrganMarkings(ent);
+        ApplyOrganMarkings(ent);
+        // End Offbrand
+
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        RemoveMarkings(ent, body);
-        ApplyMarkings(ent, body);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(body))
+        {
+            RemoveMarkings(ent, target);
+            ApplyMarkings(ent, target);
+        }
+        // End Offbrand
     }
 
     protected override void SetOrganColor(Entity<VisualOrganComponent> ent, Color color)
     {
         base.SetOrganColor(ent, color);
 
+        ApplyOrganVisual(ent); // Offbrand
+
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        ApplyVisual(ent, body);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(body))
+        {
+            ApplyVisual(ent.AsNullable(), target);
+        }
+        // End Offbrand
     }
 
     protected override void SetOrganMarkings(Entity<VisualOrganMarkingsComponent> ent, Dictionary<HumanoidVisualLayers, List<Marking>> markings)
     {
         base.SetOrganMarkings(ent, markings);
 
+        // Begin Offbrand
+        RemoveOrganMarkings(ent);
+        ApplyOrganMarkings(ent);
+        // End Offbrand
+
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        RemoveMarkings(ent, body);
-        ApplyMarkings(ent, body);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(body))
+        {
+            RemoveMarkings(ent, target);
+            ApplyMarkings(ent, target);
+        }
+        // End Offbrand
     }
 
     protected override void SetOrganAppearance(Entity<VisualOrganComponent> ent, PrototypeLayerData data)
     {
         base.SetOrganAppearance(ent, data);
 
+        ApplyOrganVisual(ent); // Offbrand
+
         if (Comp<OrganComponent>(ent).Body is not { } body)
             return;
 
-        ApplyVisual(ent, body);
+        // Begin Offbrand
+        foreach (var target in _relay.GetTargets(body))
+        {
+            ApplyVisual(ent.AsNullable(), target);
+        }
+        // End Offbrand
     }
 
     private IEnumerable<Marking> AllMarkings(Entity<VisualOrganMarkingsComponent> ent)
@@ -167,8 +275,29 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
         }
     }
 
-    private void ApplyMarkings(Entity<VisualOrganMarkingsComponent> ent, EntityUid target)
+    // Begin Offbrand
+    private void ApplyOrganMarkings(Entity<VisualOrganMarkingsComponent> ent)
     {
+        if (!TryComp<SpriteComponent>(ent, out var sprite))
+            return;
+
+        ApplyMarkings(ent, (ent.Owner, sprite));
+    }
+
+    private void RemoveOrganMarkings(Entity<VisualOrganMarkingsComponent> ent)
+    {
+        if (!TryComp<SpriteComponent>(ent, out var sprite))
+            return;
+
+        RemoveMarkings(ent, (ent.Owner, sprite));
+    }
+    // End Offbrand
+
+    private void ApplyMarkings(Entity<VisualOrganMarkingsComponent> ent, Entity<SpriteComponent?> target)
+    {
+        if (!Resolve(target, ref target.Comp))
+            return;
+
         var applied = new List<Marking>();
         foreach (var marking in AllMarkings(ent))
         {
@@ -177,6 +306,8 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
 
             if (!_sprite.LayerMapTryGet(target, proto.BodyPart, out var index, true))
                 continue;
+
+            ent.Comp.MarkingsDisplacement.TryGetValue(proto.BodyPart, out var displacement);
 
             for (var i = 0; i < proto.Sprites.Count; i++)
             {
@@ -190,8 +321,8 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
 
                 if (!_sprite.LayerMapTryGet(target, layerId, out _, false))
                 {
-                    var layer = _sprite.AddLayer(target, sprite, index + i + 1);
-                    _sprite.LayerMapSet(target, layerId, layer);
+                    var spriteLayer = _sprite.AddLayer(target, sprite, index + i + 1);
+                    _sprite.LayerMapSet(target, layerId, spriteLayer);
                     _sprite.LayerSetSprite(target, layerId, rsi);
                 }
 
@@ -199,16 +330,28 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
                     _sprite.LayerSetColor(target, layerId, marking.MarkingColors[i]);
                 else
                     _sprite.LayerSetColor(target, layerId, Color.White);
+
+                if (displacement != null && proto.CanBeDisplaced)
+                    _displacement.TryAddDisplacement(displacement, (target, target.Comp), index + i + 1, layerId, out _);
             }
 
             applied.Add(marking);
         }
         ent.Comp.AppliedMarkings = applied;
+        ent.Comp.AppliedMarkingsByTarget[target.Owner] = applied; // Offbrand
     }
 
-    private void RemoveMarkings(Entity<VisualOrganMarkingsComponent> ent, EntityUid target)
+    private void RemoveMarkings(Entity<VisualOrganMarkingsComponent> ent, Entity<SpriteComponent?> target)
     {
-        foreach (var marking in ent.Comp.AppliedMarkings)
+        if (!Resolve(target, ref target.Comp))
+            return;
+
+        // Begin Offbrand
+        if (!ent.Comp.AppliedMarkingsByTarget.Remove(target.Owner, out var appliedMarkings))
+            return;
+        // End Offbrand
+
+        foreach (var marking in appliedMarkings)
         {
             if (!_marking.TryGetMarking(marking, out var proto))
                 continue;
@@ -220,6 +363,13 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
                     continue;
 
                 var layerId = $"{proto.ID}-{rsi.RsiState}";
+
+                // If this marking is one that can be displaced, we need to remove the displacement as well; otherwise
+                // altering a marking at runtime can lead to the renderer falling over.
+                // The Vulps must be shaved.
+                // (https://github.com/space-wizards/space-station-14/issues/40135).
+                if (proto.CanBeDisplaced)
+                    _displacement.EnsureDisplacementIsNotOnSprite((target, target.Comp), layerId);
 
                 if (!_sprite.LayerMapTryGet(target, layerId, out var index, false))
                     continue;
@@ -253,12 +403,39 @@ public sealed class VisualBodySystem : SharedVisualBodySystem
 
                     var layerId = $"{proto.ID}-{rsi.RsiState}";
 
-                    if (!_sprite.LayerMapTryGet(args.Body.Owner, layerId, out var index, true))
-                        continue;
+                    // Begin Offbrand
+                    foreach (var target in _relay.GetTargets(args.Body.Owner))
+                    {
+                        if (!_sprite.LayerMapTryGet(target, layerId, out var index, true))
+                            continue;
 
-                    _sprite.LayerSetVisible(args.Body.Owner, index, args.Args.Visible);
+                        _sprite.LayerSetVisible(target, index, args.Args.Visible);
+                    }
+                    // End Offbrand
                 }
             }
         }
     }
+
+    // Begin Offbrand
+    private void OnVisualRelayTargetAdded(Entity<VisualOrganComponent> ent, ref BodyRelayedEvent<BodyAppearanceRelayTargetAddedEvent> args)
+    {
+        ApplyVisual(ent.AsNullable(), args.Args.Target);
+    }
+
+    private void OnVisualRelayTargetRemoved(Entity<VisualOrganComponent> ent, ref BodyRelayedEvent<BodyAppearanceRelayTargetRemovedEvent> args)
+    {
+        RemoveVisual(ent, args.Args.Target);
+    }
+
+    private void OnMarkingsRelayTargetAdded(Entity<VisualOrganMarkingsComponent> ent, ref BodyRelayedEvent<BodyAppearanceRelayTargetAddedEvent> args)
+    {
+        ApplyMarkings(ent, args.Args.Target);
+    }
+
+    private void OnMarkingsRelayTargetRemoved(Entity<VisualOrganMarkingsComponent> ent, ref BodyRelayedEvent<BodyAppearanceRelayTargetRemovedEvent> args)
+    {
+        RemoveMarkings(ent, args.Args.Target);
+    }
+    // End Offbrand
 }

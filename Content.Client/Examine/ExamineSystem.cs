@@ -2,6 +2,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using Content.Client.Verbs;
+using Content.Shared.Body;
 using Content.Shared.Examine;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Input;
@@ -37,6 +38,8 @@ namespace Content.Client.Examine
         public const string StyleClassEntityTooltip = "entity-tooltip";
 
         private EntityUid _examinedEntity;
+        private EntityUid _tooltipFocusEntity; // Offbrand - separate body focus
+        private EntityUid? _requestDisplayTarget; // Offbrand - separate body focus
         private Popup? _examineTooltipOpen;
         private ScreenCoordinates _popupPos;
         private CancellationTokenSource? _requestCancelTokenSource;
@@ -68,16 +71,16 @@ namespace Content.Client.Examine
             if (_examineTooltipOpen == null)
                 return;
 
-            if (item == _examinedEntity && args.User == _playerManager.LocalEntity)
+            if (item == _tooltipFocusEntity && args.User == _playerManager.LocalEntity)
                 CloseTooltip();
         }
 
         public override void Update(float frameTime)
         {
             if (_examineTooltipOpen is not {Visible: true}) return;
-            if (!_examinedEntity.Valid || _playerManager.LocalEntity is not { } player) return;
+            if (!_tooltipFocusEntity.Valid || _playerManager.LocalEntity is not { } player) return;
 
-            if (!CanExamine(player, _examinedEntity))
+            if (!CanExamine(player, _tooltipFocusEntity))
                 CloseTooltip();
         }
 
@@ -158,13 +161,23 @@ namespace Content.Client.Examine
             // since there's probably one open already if it's coming in from the server.
             var entity = GetEntity(ev.EntityUid);
 
-            OpenTooltip(player.Value, entity, ev.CenterAtCursor, ev.OpenAtOldTooltip, ev.KnowTarget);
+            // Begin Offbrand - separate body focus
+            var displayTarget = ev.Id != 0 && _requestDisplayTarget is { } requestDisplayTarget
+                ? requestDisplayTarget
+                : entity;
+            var showBody = ev.ShowBody ||
+                           displayTarget != entity && HasComp<BodyComponent>(displayTarget);
+
+            _examinedEntity = entity;
+            OpenTooltip(player.Value, displayTarget, ev.CenterAtCursor, ev.OpenAtOldTooltip, ev.KnowTarget, showBody);
             UpdateTooltipInfo(player.Value, entity, ev.Message, ev.Verbs, getVerbs: false);
+            // End Offbrand - separate body focus
         }
 
-        public override void SendExamineTooltip(EntityUid player, EntityUid target, FormattedMessage message, bool getVerbs, bool centerAtCursor)
+        public override void SendExamineTooltip(EntityUid player, EntityUid target, FormattedMessage message, bool getVerbs, bool centerAtCursor, bool showBody = false)
         {
-            OpenTooltip(player, target, centerAtCursor);
+            _examinedEntity = target;
+            OpenTooltip(player, target, centerAtCursor, showBody: showBody);
             UpdateTooltipInfo(player, target, message, getVerbs: getVerbs);
         }
 
@@ -173,7 +186,7 @@ namespace Content.Client.Examine
         ///     not fill it with information. This is done when the server sends examine info/verbs,
         ///     or immediately if it's entirely clientside.
         /// </summary>
-        public void OpenTooltip(EntityUid player, EntityUid target, bool centeredOnCursor=true, bool openAtOldTooltip=true, bool knowTarget = true)
+        public void OpenTooltip(EntityUid player, EntityUid target, bool centeredOnCursor=true, bool openAtOldTooltip=true, bool knowTarget = true, bool showBody = false)
         {
             // Close any examine tooltip that might already be opened
             // Before we do that, save its position. We'll prioritize opening any new popups there if
@@ -182,7 +195,7 @@ namespace Content.Client.Examine
             CloseTooltip();
 
             // cache entity for Update function
-            _examinedEntity = target;
+            _tooltipFocusEntity = target; // Offbrand - separate body focus
 
             const float minWidth = 300;
 
@@ -250,6 +263,21 @@ namespace Content.Client.Examine
                 label.SetMessage(FormattedMessage.FromMarkupOrThrow("[bold]???[/bold]"));
                 hBox.AddChild(label);
             }
+
+            // Begin Offbrand
+            if (showBody && HasComp<BodyComponent>(target))
+            {
+                var doll = new Content.Client._Offbrand.BodyVisuals.OffbrandHealthDollControl
+                {
+                    OverrideDirection = Direction.South,
+                    SetSize = new Vector2(128, 128),
+                    Scale = new Vector2(4, 4),
+                    HorizontalAlignment = Control.HAlignment.Center,
+                };
+                doll.SetBody(target);
+                vBox.AddChild(doll);
+            }
+            // End Offbrand
 
             panel.Measure(Vector2Helpers.Infinity);
             var size = Vector2.Max(new Vector2(minWidth, 0), panel.DesiredSize);
@@ -396,15 +424,21 @@ namespace Content.Client.Examine
             }
         }
 
-        public void DoExamine(EntityUid entity, bool centeredOnCursor = true, EntityUid? userOverride = null)
+        public void DoExamine(EntityUid entity, bool centeredOnCursor = true, EntityUid? userOverride = null, EntityUid? displayTarget = null)
         {
             var playerEnt = userOverride ?? _playerManager.LocalEntity;
             if (playerEnt == null)
                 return;
 
+            var focusTarget = displayTarget ?? entity;
+            var showBody = displayTarget != null && HasComp<BodyComponent>(focusTarget);
+
             FormattedMessage message;
 
-            OpenTooltip(playerEnt.Value, entity, centeredOnCursor, false);
+            // Begin Offbrand - separate body focus
+            _examinedEntity = entity;
+            OpenTooltip(playerEnt.Value, focusTarget, centeredOnCursor, false, showBody: showBody);
+            // End Offbrand - separate body focus
 
             // Always update tooltip info from client first.
             // If we get it wrong, server will correct us later anyway.
@@ -419,7 +453,12 @@ namespace Content.Client.Examine
                 {
                     _idCounter += 1;
                 }
+                _requestDisplayTarget = displayTarget; // Offbrand - separate body focus
                 RaiseNetworkEvent(new ExamineSystemMessages.RequestExamineInfoMessage(GetNetEntity(entity), _idCounter, true));
+            }
+            else
+            {
+                _requestDisplayTarget = null; // Offbrand - separate body focus
             }
 
             RaiseLocalEvent(entity, new ClientExaminedEvent(entity, playerEnt.Value));
