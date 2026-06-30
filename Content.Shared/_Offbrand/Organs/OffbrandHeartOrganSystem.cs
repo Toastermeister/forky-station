@@ -35,11 +35,59 @@ public sealed partial class OffbrandHeartOrganSystem : EntitySystem
 
         var damage = Comp<DamageableOrganComponent>(ent);
 
-        var message = damage.Damage >= ent.Comp.StethoscopeDamagedAbove
-            ? "heart-stethoscope-damaged"
-            : "heart-stethoscope-healthy";
+        // Determine species for contextual sound description
+        var speciesSuffix = GetSpeciesSuffix(ent);
 
-        args.Messages.Add(Loc.GetString(message));
+        var damaged = damage.Damage >= ent.Comp.StethoscopeDamagedAbove;
+        var messageId = damaged
+            ? $"heart-stethoscope-{speciesSuffix}-damaged"
+            : $"heart-stethoscope-{speciesSuffix}-healthy";
+
+        // Fallback to generic if species-specific locale doesn't exist
+        if (!Loc.TryGetString(messageId, out _))
+            messageId = damaged ? "heart-stethoscope-damaged" : "heart-stethoscope-healthy";
+
+        args.Messages.Add(Loc.GetString(messageId));
+    }
+
+    private string GetSpeciesSuffix(Entity<OffbrandHeartOrganComponent> ent)
+    {
+        if (Comp<OrganComponent>(ent).Body is not { } body)
+            return "human";
+
+        // Determine species by checking for species-specific blood types on body organs
+        if (TryGetSpeciesFromBody(body, out var species))
+            return species;
+
+        return "human";
+    }
+
+    private bool TryGetSpeciesFromBody(EntityUid body, out string species)
+    {
+        species = "human";
+
+        // Look for the heart organ's BloodstreamProvider to determine species
+        if (!TryComp<BodyComponent>(body, out var bodyComp) || bodyComp.Organs == null)
+            return false;
+
+        foreach (var organ in bodyComp.Organs.ContainedEntities)
+        {
+            if (TryComp<BloodstreamProviderComponent>(organ, out var blood))
+            {
+                var bloodType = blood.BloodType.ToLower();
+                if (bloodType.StartsWith("arachnid")) { species = "arachnid"; return true; }
+                if (bloodType.StartsWith("vox")) { species = "vox"; return true; }
+                if (bloodType.StartsWith("diona")) { species = "diona"; return true; }
+                if (bloodType.StartsWith("moth")) { species = "moth"; return true; }
+                if (bloodType.StartsWith("reptilian")) { species = "reptilian"; return true; }
+                if (bloodType.StartsWith("slime")) { species = "slime"; return true; }
+                if (bloodType.StartsWith("dwarf")) { species = "human"; return true; }
+                if (bloodType.StartsWith("vulpkanin")) { species = "human"; return true; }
+                return true; // Default to human for other blood types
+            }
+        }
+
+        return false;
     }
 
     private void OnOrganGotInserted(Entity<OffbrandHeartOrganComponent> ent, ref OrganGotInsertedEvent args)

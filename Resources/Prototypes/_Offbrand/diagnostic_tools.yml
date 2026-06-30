@@ -1,0 +1,86 @@
+- type: entity
+  parent: BaseItem
+  id: ReflexHammer
+  name: reflex hammer
+  description: Used to test nerve responses by striking tendons. A sharp tap reveals nerve damage.
+  components:
+  - type: Sprite
+    sprite: Objects/Tools/wrench.rsi
+    layers:
+    - state: icon
+  - type: Item
+    size: Small
+  - type: ReflexHammer
+  - type: Tag
+    tags:
+    - ReflexHammer
+
+- type: entity
+  parent: BaseItem
+  id: MedicalPenLight
+  name: medical pen-light
+  description: Used to test pupillary light reflexes. A bright light reveals neurological or ocular damage.
+  components:
+  - type: Sprite
+    sprite: Objects/Tools/flashlight.rsi
+    layers:
+    - state: flashlight
+  - type: Item
+    size: Tiny
+  - type: PenLight
+  - type: Tag
+    tags:
+    - PenLight
+
+- type: entity
+  parent: BaseItem
+  id: TriageTag
+  name: triage tag
+  description: A color-coded tag for marking patient priority. Click on a patient to attach it.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/paper.rsi
+    layers:
+    - state: paper
+  - type: Item
+    size: Tiny
+  - type: TriageTag
+  - type: Tag
+    tags:
+    - TriageTag
+
+- type: entity
+  parent: TriageTag
+  id: TriageTagRed
+  name: triage tag (RED - Immediate)
+  suffix: Immediate
+  components:
+  - type: TriageTag
+    level: Red
+
+- type: entity
+  parent: TriageTag
+  id: TriageTagYellow
+  name: triage tag (YELLOW - Delayed)
+  suffix: Delayed
+  components:
+  - type: TriageTag
+    level: Yellow
+
+- type: entity
+  parent: TriageTag
+  id: TriageTagGreen
+  name: triage tag (GREEN - Minor)
+  suffix: Minor
+  components:
+  - type: TriageTag
+    level: Green
+
+- type: entity
+  parent: TriageTag
+  id: TriageTagBlack
+  name: triage tag (BLACK - Deceased)
+  suffix: Deceased
+  components:
+  - type: TriageTag
+    level: Black

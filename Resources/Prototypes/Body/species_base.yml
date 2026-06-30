@@ -241,4 +241,5 @@
     quadraticFactor: 0.00005
     linearFactor: -0.0025
     constantFactor: 1.0
+  - type: ShockPathing
   - type: FootprintOwner # Funky change
