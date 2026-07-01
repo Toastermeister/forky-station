@@ -4,6 +4,7 @@ using Content.Shared.DoAfter;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
+using Robust.Shared.Serialization;
 
 namespace Content.Shared._Offbrand.Medical;
 
@@ -87,4 +88,5 @@ public sealed partial class PenLightSystem : EntitySystem
     }
 }
 
+[Serializable, NetSerializable]
 public sealed partial class PenLightDoAfterEvent : SimpleDoAfterEvent;

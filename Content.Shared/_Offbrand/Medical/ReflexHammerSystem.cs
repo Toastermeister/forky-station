@@ -6,6 +6,7 @@ using Content.Shared.IdentityManagement;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.StatusEffectNew;
+using Robust.Shared.Serialization;
 
 namespace Content.Shared._Offbrand.Medical;
 
@@ -74,4 +75,5 @@ public sealed partial class ReflexHammerSystem : EntitySystem
     }
 }
 
+[Serializable, NetSerializable]
 public sealed partial class ReflexHammerDoAfterEvent : SimpleDoAfterEvent;

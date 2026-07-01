@@ -11,9 +11,6 @@
   - type: Item
     size: Small
   - type: ReflexHammer
-  - type: Tag
-    tags:
-    - ReflexHammer
 
 - type: entity
   parent: BaseItem
@@ -28,9 +25,6 @@
   - type: Item
     size: Tiny
   - type: PenLight
-  - type: Tag
-    tags:
-    - PenLight
 
 - type: entity
   parent: BaseItem
@@ -45,9 +39,6 @@
   - type: Item
     size: Tiny
   - type: TriageTag
-  - type: Tag
-    tags:
-    - TriageTag
 
 - type: entity
   parent: TriageTag
