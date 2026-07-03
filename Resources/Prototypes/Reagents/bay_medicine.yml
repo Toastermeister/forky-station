@@ -149,27 +149,6 @@
         time: 2.0
         type: Add
 
-# === BURN ===
-
-- type: reagent
-  id: Dermaline
-  name: reagent-name-dermaline
-  group: Medicine
-  desc: reagent-desc-dermaline
-  physicalDesc: reagent-physical-desc-translucent
-  flavor: medicine
-  color: "#b33000"
-  bioavailability: 0.6
-  metabolismRate: 0.2
-  overdoseThreshold: 15
-  metabolisms:
-    Bloodstream:
-      effects:
-      - !type:HealthChange
-        damage:
-          types:
-            Heat: -12
-
 # === MISC ===
 
 - type: reagent
@@ -191,24 +170,3 @@
           types:
             Poison: -0.5
 
-- type: reagent
-  id: Ethylredoxrazine
-  name: reagent-name-ethylredoxrazine
-  group: Medicine
-  desc: reagent-desc-ethylredoxrazine
-  physicalDesc: reagent-physical-desc-translucent
-  flavor: medicine
-  color: "#d2bfa3"
-  bioavailability: 0.6
-  metabolismRate: 0.2
-  overdoseThreshold: 30
-  metabolisms:
-    Bloodstream:
-      effects:
-      - !type:AdjustReagent
-        reagent: Ethanol
-        amount: -5
-      - !type:GenericStatusEffect
-        key: Drunk
-        time: 5.0
-        type: Remove
